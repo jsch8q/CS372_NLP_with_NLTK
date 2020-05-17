@@ -157,13 +157,15 @@ urls1 = get_google_search_urls("heteronym pun reddit")
 urls2 = get_google_search_urls("heteronym used in a sentence")
 
 fout = open("./reddit.txt", "w", encoding = "utf-8")
+urlout = open("./searched_urls.txt", "w", encoding = "utf-8")
 
 urls = urls1+urls2
 i = 1
 
 print(len(urls), " urls found. Crawling Started...")
 for url in urls:#[i:i+1]:
-    print(urls[i-1])
+    urlout.write(urls[i-1])
+    urlout.write("\n")
     print("Attempting to crawl from URL #", i)
 
     try:
@@ -178,6 +180,7 @@ for url in urls:#[i:i+1]:
     i += 1
 
 fout.close() 
+urlout.close()
 
 """
 print(tag_sent(test_sent))
@@ -191,22 +194,21 @@ print(len(hetero_candidates))
 # for item in contents:
 #     print(item)
 
-"""
-url = "http://jonv.flystrip.com/heteronym/heteronym.htm"
-url = "http://www.fun-with-words.com/nym_heteronyms.html"
-"""
-# contents = get_paragraphs_from_url(url)
-# for sent in contents:
-#     if str_starts_with_enumeration(sent):
-#         print(sent)
-"""
-soup = make_soup(url)
-fout = open("./reddit.txt", "w", encoding = "utf-8")
-#raw = re.split(r"\r|\n", soup.get_text())
-raw = get_paragraphs_from_url(url)
-for item in raw:
-    if True or str_starts_with_enumeration(item):
-        fout.write(item)
-        fout.write("\n")
-fout.close()
-"""
+
+# url = "http://jonv.flystrip.com/heteronym/heteronym.htm"
+# url = "http://www.fun-with-words.com/nym_heteronyms.html"
+
+# # contents = get_paragraphs_from_url(url)
+# # for sent in contents:
+# #     if str_starts_with_enumeration(sent):
+# #         print(sent)
+
+# soup = make_soup(url)
+# # fout = open("./reddit.txt", "w", encoding = "utf-8")
+# #raw = re.split(r"\r|\n", soup.get_text())
+# raw = get_paragraphs_from_url(url)
+# for item in raw:
+#     if True or str_starts_with_enumeration(item):
+#         print(item)
+#         # fout.write("\n")
+# # fout.close()
