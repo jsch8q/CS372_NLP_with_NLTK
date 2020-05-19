@@ -1,12 +1,14 @@
-import nltk, re, stanza
+import nltk, re, stanza , time
 from bs4 import BeautifulSoup
 from urllib import request
 from nltk.corpus import wordnet as wn
-from nltk import pos_tag, word_tokenize
+from nltk.corpus import stopwords
+from nltk import pos_tag, word_tokenize, sent_tokenize
 cmucorpus = nltk.corpus.cmudict 
 
 cmudict_dict = cmucorpus.dict()
 cmuentries = cmucorpus.entries()
+stopword = stopwords.words('english')
 
 def tag_sent(s):
     txt = word_tokenize(s)
@@ -47,15 +49,16 @@ def get_google_search_urls(s):
 def str_starts_with_enumeration(s):
     return bool(re.match('^[0-9]+[^A-Za-z]', s))
 
-def split_sent_by_semicolon(s):
-    new_sents = s.split(";")
+def split_sent_by_colon(s):
+    # s = s.strip()
+    new_sents = re.split(";|:", s)
     for i in range(len(new_sents)):
         sent = new_sents[i]
         new_sent = sent.strip()
         if len(new_sent) == 0:
-            new_sents[i] = "Hello."
-        elif len(new_sent) == 1:
-            new_sents[i] = new_sent.upper()
+            new_sents[i] = "Bye."
+        # elif len(new_sent) == 1:
+        #     new_sents[i] = new_sent.upper()
         else :
             new_sents[i] = new_sent[0].upper() + new_sent[1:]
     return new_sents
@@ -68,13 +71,14 @@ def get_paragraphs_from_url(url):
         sents =  [sent for sent in re.split(r'\r|\n', item.text) if sent != '']
         paragraph_list += sents
     paragraph_list = list(set(paragraph_list))
+    # res = paragraph_list
     res = []
     for paragraph in paragraph_list:
-        res = res + split_sent_by_semicolon(paragraph)
+        res = res + split_sent_by_colon(paragraph)
     refined_res = refine_crawled_result_further(res)
     return refined_res
 
-def is_one_word_sentence(sent):
+def is_one_word(sent):
     return not bool(len(sent.split()) - 1)
 
 def has_curly_braces(sent):
@@ -91,7 +95,7 @@ def refine_crawled_result_further(res_list):
                     item = item[i+1:].split()
                     break
 
-        if re.search(r'[0-9]+px', item) or is_one_word_sentence(item) or has_curly_braces(item):
+        if re.search(r'[0-9]+px', item) or re.search(r'[^A-Za-z0-9.,?!\'"(){}\[\] ]', item) or is_one_word(item) or has_curly_braces(item):
             pass
         else :
             refined_res.append(item)
@@ -150,16 +154,23 @@ play = wn.synset('play.v.03')
 drum = wn.synset('drum.n.01')
 """
 
+start = time.time()
 google_search = "https://www.google.com/search?q="
 hdr = {'User-Agent': 'Mozilla/5.0'}
 
-urls1 = get_google_search_urls("heteronym pun reddit")
-urls2 = get_google_search_urls("heteronym used in a sentence")
+queries = ["site:reddit.com heteronym example", "heteronym used in a sentence"]
+
+urls = []
+for query in queries:
+    tmp_urls = get_google_search_urls(query)
+    urls = urls + tmp_urls
+urls = list(set(urls))
 
 fout = open("./reddit.txt", "w", encoding = "utf-8")
 urlout = open("./searched_urls.txt", "w", encoding = "utf-8")
+crawled_sents = []
 
-urls = urls1+urls2
+#urls = urls1+urls2
 i = 1
 
 print(len(urls), " urls found. Crawling Started...")
@@ -172,22 +183,25 @@ for url in urls:#[i:i+1]:
         soup = make_soup(url)
         raw = get_paragraphs_from_url(url)
         for item in raw:
-            if True or str_starts_with_enumeration(item):
-                fout.write(item)
-                fout.write("\n")
+            # if True or str_starts_with_enumeration(item):
+            fout.write(item)
+            fout.write("\n")
+            crawled_sents += sent_tokenize(item)
     except :
         pass
     i += 1
 
 fout.close() 
 urlout.close()
+print("time elapsed : ", time.time() - start, "seconds")
 
 """
 print(tag_sent(test_sent))
-
-hetero_candidates = heteronyms_from_cmudict()
-print(len(hetero_candidates))
 """
+hetero_candidates = heteronyms_from_cmudict()
+hetero_candidates = set(hetero_candidates).difference(set(stopword))
+print(len(hetero_candidates))
+
 
 #url = "https://www.reddit.com/r/grammar/comments/24kegp/why_are_bow_and_bow_pronounced_differently/"
 # contents = get_paragraphs_from_url(url)
