@@ -130,6 +130,15 @@ def heteronyms_from_cmudict():
         if heteronym_check_from_cmu(word):
             heteronym_candidates.append(word)"""
     return list(set(heteronym_candidates))
+
+def extract_heteros(sent):
+    res = []
+    for word in word_tokenize(sent):
+	    if word in hetero_candidates and word.isalpha():
+		    res.append(word)
+    return res
+    #### development paused here
+
 """
 def bass_def(token = "bass"):
     for item in wn.synsets(token):
