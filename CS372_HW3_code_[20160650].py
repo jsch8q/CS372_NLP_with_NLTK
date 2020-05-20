@@ -8,6 +8,7 @@ cmucorpus = nltk.corpus.cmudict
 
 cmudict_dict = cmucorpus.dict()
 cmuentries = cmucorpus.entries()
+words_in_cmu = set(cmudict_dict)
 stopword = stopwords.words('english')
 
 def tag_sent(s):
@@ -88,16 +89,25 @@ def refine_crawled_result_further(res_list):
     refined_res = []
     for item in res_list:
         item = item.strip()
-
-        if str_starts_with_enumeration(item):
-            for i in range(len(item)):
-                if not item[i].isdigit():
-                    item = item[i+1:].split()
-                    break
+        # print(item)
+        # if str_starts_with_enumeration(item):
+        #     no_digit = []
+        #     for i in range(len(item)):
+        #         if not item[i].isdigit():
+        #             no_digit.append(i)
+        #     j = no_digit[0]
+        #     if item[j].isalpha():
+        #         item = item[j:]
+        #     else :
+        #         item = item[j+1:]
+        #             # continue
+        #     item = item.split()
 
         if re.search(r'[0-9]+px', item) or re.search(r'[^A-Za-z0-9.,?!\'"(){}\[\] ]', item) or is_one_word(item) or has_curly_braces(item):
+            # print("Item dumped")
             pass
         else :
+            # print(item," added")
             refined_res.append(item)
     return refined_res
 
@@ -139,21 +149,37 @@ def extract_heteros(sent):
     return res
     #### development paused here
 
+def is_readable(sent):
+    print(sent)
+    words = word_tokenize(sent)
+    res = True
+    for word in words:
+        word = word.lower()
+        if word.isalpha():
+            if word in words_in_cmu:
+                pass
+            else : 
+                print(word)
+                res = False
+        else:
+            pass
+    return res
+
+def normalize_sent(s):
+    if not s[-1] in {'.', '!', '?'}:
+        s = s + '.'
+    return s[0].upper() + s[1:]
+
 """
 def bass_def(token = "bass"):
     for item in wn.synsets(token):
         if item.pos() == 'n':
             print(item.definition())
-
 test_sent = "The bandage was wound around the wound."
-
 stanza.download('en')
 nlp = stanza.Pipeline('en')
-
 doc = nlp(test_sent)
 print(*[f'id: {word.id}\tword: {word.text}\thead id: {word.head}\thead: {sent.words[word.head-1].text if word.head > 0 else "root"}\tdeprel: {word.deprel}' for sent in doc.sentences for word in sent.words], sep='\n')
-
-
 bass = wn.synset('sea_bass.n.01')
 swim = wn.synset('swim.v.01')
 fish = wn.synset('fish.n.01')
@@ -188,15 +214,33 @@ for url in urls:#[i:i+1]:
     urlout.write("\n")
     print("Attempting to crawl from URL #", i)
 
-    try:
-        soup = make_soup(url)
+    if True:
+        # soup = make_soup(url)
         raw = get_paragraphs_from_url(url)
-        for item in raw:
+        # sents = sent_tokenize(raw)
+        # print(raw)
+        for paragraphs in raw:
             # if True or str_starts_with_enumeration(item):
-            fout.write(item)
-            fout.write("\n")
-            crawled_sents += sent_tokenize(item)
-    except :
+            sents = sent_tokenize(paragraphs)
+            for item in sents:
+                tagged = tag_sent(item)
+                # print(item)
+                if len(tagged) < 2:
+                    continue
+                elif (tagged[1][0] == "," or tagged[1][0] == ")") :
+                    pattern = tagged[1][0]
+                    cut_point = item.find(pattern)
+                    # (start, end) = re.search(pattern, item).span()
+                    item = item[cut_point + 1:].strip()
+                    tagged = tagged[2:]
+                words = word_tokenize(item)
+                bool1 = is_readable(item)
+                if bool1 :
+                    fetched_sent = normalize_sent(item)
+                    fout.write(fetched_sent)
+                    fout.write("\n")
+                    crawled_sents.append(fetched_sent)
+    else :
         pass
     i += 1
 
