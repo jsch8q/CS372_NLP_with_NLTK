@@ -19,11 +19,15 @@ wikparser.RELATIONS = []
 #stanza.download('en')
 #stanza_nlp = stanza.Pipeline('en')
 
-# ================================================#
-# ============     END OF HEADERS     ============#
-# ================================================#
+# ================================================ #
+# ============     END OF HEADERS     ============ #
+# ================================================ #
 
 def tag_sent(s):
+    """
+        POS tagging to a sentence string.
+        Since we are using stanza, maybe this should be replaced by that.
+    """
     txt = word_tokenize(s)
     return nltk.pos_tag(txt)
 
@@ -47,6 +51,11 @@ def get_pars(sred, verbose = True):
     return paragraphs
         
 def normalize_sent_lists(sent_list):
+    """
+        Some reddit "sentences" starts with a lowercase letter.
+        Changes the first letter of the sentence to an uppercase letter.
+        But is this process necessary?
+    """
     num_sent = len(sent_list)
     for i in range(num_sent):
         sent = sent_list[i]
@@ -54,21 +63,50 @@ def normalize_sent_lists(sent_list):
            sent_list[i] = sent[0].upper() + sent[1:]
 
 def heteronym_check_from_cmu(word):
+    """
+        Finds words with two different pronunciations in cmudict.
+        Not meant to be the rule to determine heteronyms, 
+        but to exclude words that are not heteronyms.
+    """
     if len(cmudict_dict[word]) < 2 :
         return False
     return True
 
+def heteronym_check_from_wiktionary(word):
+    """
+        Once the wiktionaryparser gets results from wiktionary,
+        we can be pretty sure about whether the lexical item is a heteronym or not.
+    """
+    if len(word) < 2:
+        # this case, the word has only one etymology, 
+        # thus only one pronunciation is assigned to this lexical item.
+        return False
+    # FIXME : There are words having multiple etymologies but a single pronunciation.
+    #       : Thus, we shall not just blindly return True.
+    return True
+
 def heteronyms_from_cmudict():
+    """
+        Makes list of words which follows the rule of heteronym_check_from_cmu().
+    """
     words = [entry[0] for entry in cmuentries]
     heteronym_candidates = [word for word in words if heteronym_check_from_cmu(word)]
     maybe_heteros = set(heteronym_candidates).difference(set(stopword))
     return maybe_heteros
+
+def makeDictFromWikiWord(word):
+    # TODO : From WordData object, extract only data we need and make a new list.
+
 
 ########################  Monkey Patching the wiktionaryparser module ########################
 ###### The wiktionaryparser module has a bug of not parsing the pronunciation properly. ######
 ############## The following code is an internal method defined in the module. ###############
 
 def debugged_parse_pronunciation(self, word_contents):
+    """
+        This code fragment is included so that we can do monkey patching, 
+        not use somewhere else in the code.
+    """
     pronunciation_id_list = self.get_id_list(word_contents, 'pronunciation')
     pronunciation_list = []
     audio_links = []
