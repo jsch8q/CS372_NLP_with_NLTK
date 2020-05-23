@@ -2,7 +2,6 @@ import nltk, re, stanza, time, praw, pickle
 from bs4 import BeautifulSoup
 from urllib import request
 from wiktionaryparser import WiktionaryParser
-from vocabulary.vocabulary import Vocabulary as vb
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk import pos_tag, word_tokenize, sent_tokenize
@@ -75,29 +74,6 @@ def heteroFromNewCMUDict(new_cmuentries):
         if re.match("[A-Z]+.*\(1\)", entries):
             new_hetero.append(entries.split()[0][:-3].lower())
     return set(new_hetero)
-
-def refine_hetero_by_vocab_module(hetero_set):
-    candidate_list = list(hetero_set)
-    print(len(candidate_list))
-    i = 0
-    refined_list = []
-    for word in candidate_list:
-        #print(word)
-        if ((i + 1) % 100) == 0 :
-            print("hetero number %d" %(i + 1))
-        i += 1
-        pron_dict = vb.pronunciation(word, format = "dict")
-        americanHeritageProns = []
-        if type(pron_dict) is bool:
-            pass
-        else :
-            for i in range(len(pron_dict)):
-                if ("American Heritage" in pron_dict[i]['attributionText']):
-                    americanHeritageProns.append(pron_dict[i]['raw'])
-            if len(set(americanHeritageProns)) != 1:
-                refined_list.append(word)
-    return set(refined_list)
-
 
 def heteronym_check_from_nltk(word, new_hetero):
     """
