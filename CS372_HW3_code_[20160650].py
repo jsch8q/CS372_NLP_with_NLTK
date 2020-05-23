@@ -1,4 +1,4 @@
-import nltk, re, stanza, time, praw
+import nltk, re, stanza, time, praw, pickle
 from bs4 import BeautifulSoup
 from urllib import request
 from wiktionaryparser import WiktionaryParser
@@ -6,12 +6,13 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk import pos_tag, word_tokenize, sent_tokenize
 from pprint import pprint
+from collections import defaultdict
 
 start = time.time()
-cmucorpus = nltk.corpus.cmudict 
-cmudict_dict = cmucorpus.dict()
-cmuentries = cmucorpus.entries()
-words_in_cmu = set(cmudict_dict)
+# cmucorpus = nltk.corpus.cmudict 
+# cmudict_dict = cmucorpus.dict()
+# cmuentries = cmucorpus.entries()
+# words_in_cmu = set(cmudict_dict)
 stopword = stopwords.words('english')
 wnl = nltk.WordNetLemmatizer()
 wikparser = WiktionaryParser()
@@ -40,7 +41,7 @@ def get_pars(sred, verbose = True):
     print("Working on reddit post #%d" %(i + 1))
     for sub in sred:
         if verbose and not ((i + 1) % 50): 
-            print("Working on submission #%d" %(i + 1))
+            print("Working on reddit post #%d" %(i + 1))
         paragraphs = paragraphs + [sub.title, sub.selftext]
         sub.comments.replace_more(limit = None)
         comms = []
@@ -59,44 +60,99 @@ def normalize_sent_lists(sent_list):
     num_sent = len(sent_list)
     for i in range(num_sent):
         sent = sent_list[i]
+        sent = re.sub("\(.*\)|\{.*\}|\[.*\]|\*", "", sent)
         if len(sent) :
            sent_list[i] = sent[0].upper() + sent[1:]
 
-def heteronym_check_from_cmu(word):
+def heteroFromNewCMUDict(new_cmuentries):
+    url = "http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b"
+    html = re.split("[\r\n]+", request.urlopen(url).read().decode('Latin-1'))
+    new_hetero = []
+    for entries in html:
+        if re.match("[A-Z]", entries):
+            new_cmuentries.append(entries.split()[0])
+        if re.match("[A-Z]+.*\(1\)", entries):
+            new_hetero.append(entries.split()[0][:-3].lower())
+    return set(new_hetero)
+
+def heteronym_check_from_nltk(word, new_hetero):
     """
         Finds words with two different pronunciations in cmudict.
         Not meant to be the rule to determine heteronyms, 
         but to exclude words that are not heteronyms.
     """
-    if len(cmudict_dict[word]) < 2 :
+    # new_hetero = heteroFromNewCMUDict()
+    # if len(new_cmudict_hetero[word]) < 2 :
+    if not (word in new_hetero):
+        return False
+    if len(wn.synsets(word)) < 2 :
         return False
     return True
 
-def heteronym_check_from_wiktionary(word):
+def heteronym_check_from_wiktionary(parsed_dict):
     """
         Once the wiktionaryparser gets results from wiktionary,
         we can be pretty sure about whether the lexical item is a heteronym or not.
+        But fetching is expensive, so this should be used as less as possible.
     """
+    if len(parsed_dict) < 2:
+        return False
+    return True
     if len(word) < 2:
         # this case, the word has only one etymology, 
         # thus only one pronunciation is assigned to this lexical item.
         return False
+    pron_set = set()
+    for i in range(len(word)):
+        if not '(obsolete)' in wd[i]['definitions']:
+            try :
+                pron_set.add(word[i]['pronunciations']['text'][0])
+            except :
+                #some 'obsolete' usage of words have no pronunciations annotated.
+                pass
+    #pron_set = set([word[i]['pronunciations']['text'][0] for i in range(len(word)) if not '(obsolete)' in wd[i]['definitions']])
+    if len(pron_set) < 2:
+        return False
     # FIXME : There are words having multiple etymologies but a single pronunciation.
     #       : Thus, we shall not just blindly return True.
+    # I think this is FIXED.
     return True
 
-def heteronyms_from_cmudict():
+def heteronyms_from_nltk():
     """
-        Makes list of words which follows the rule of heteronym_check_from_cmu().
+        Makes list of words which follows the rule of heteronym_check_from_nltk().
     """
-    words = [entry[0] for entry in cmuentries]
-    heteronym_candidates = [word for word in words if heteronym_check_from_cmu(word)]
+    words = [entry.lower() for entry in new_cmuentries]
+    heteronym_candidates = [word for word in words if heteronym_check_from_nltk(word, hetero7)]
     maybe_heteros = set(heteronym_candidates).difference(set(stopword))
     return maybe_heteros
 
 def makeDictFromWikiWord(word):
-    # TODO : From WordData object, extract only data we need and make a new list.
+    myDict = defaultdict(dict)
+    for i in range(len(word)):
+        defs = []
+        pron = ''
+        pos = ''
+        try:
+            pron = word[i]['pronunciations']['text'][0]
+            IPA_pron = pron[pron.find("IPA"):]
+            num_of_def_chunks = len(word[i]['definitions'])
+            for j in range(num_of_def_chunks):
+                def_dict = dict(word[i]['definitions'][j])
+                defs = def_dict['text'][1:]
+                pos = def_dict['partOfSpeech']
+                myDict[IPA_pron][pos] = defs
+        except:
+            #some entries such as 'obsolete' usage of words have no pronunciations annotated.
+            pass
+    return dict(myDict)
 
+def myFreq(word_list):
+    uniques = list(set(word_list))
+    freq_list = []
+    for word in uniques:
+        freq_list.append((word_list.count(word), word))
+    return freq_list        
 
 ########################  Monkey Patching the wiktionaryparser module ########################
 ###### The wiktionaryparser module has a bug of not parsing the pronunciation properly. ######
@@ -138,7 +194,11 @@ def debugged_parse_pronunciation(self, word_contents):
 
 WiktionaryParser.parse_pronunciations = debugged_parse_pronunciation
 
+new_cmuentries = []
+hetero7 = heteroFromNewCMUDict(new_cmuentries)
+hetero_candidates = heteronyms_from_nltk()
 
+"""
 ###    Initializer of Python Reddit API Wrapper    ###
 ### Below is a routine of authenticating via OAuth2 ##
 reddit = praw.Reddit(client_id = "ssLUMowJL-2Ulw", \
@@ -148,18 +208,19 @@ reddit = praw.Reddit(client_id = "ssLUMowJL-2Ulw", \
 
 subreddit = reddit.subreddit('wordplay')
 
-hetero_candidates = heteronyms_from_cmudict()
 
-word = wikparser.fetch("a")
-pprint(word)
 
-"""num_of_submissions = 50 #250
+# word = wikparser.fetch("a")
+# pprint(word)
+
+#num_of_hot_posts = 0
+#num_of_top_posts = 1000
 
 ### Get posts in the subreddit, sorted by hot and top ###
-hot_sred = subreddit.hot(limit = num_of_submissions)
-top_sred = subreddit.top('all', limit = num_of_submissions)
+# hot_sred = subreddit.hot(limit = num_of_hot_posts)
+top_sred = subreddit.top('all', limit = None)
 
-pars1 = get_pars(hot_sred)
+pars1 = []#get_pars(hot_sred)
 pars2 = get_pars(top_sred)
 
 pars = pars1 + pars2
@@ -171,5 +232,58 @@ for par in pars:
         normalize_sent_lists(sent_list)
         sents += sent_list
 
-print("crawled %d sentences from %d submissions in %.6f seconds" %( len(sents), (num_of_submissions if bool(num_of_submissions) else 1000) * 2, time.time() - start))
+with open("./sents_from_reddit.txt", 'wb') as fout:
+    pickle.dump(sents, fout)
+fout.close()
+
+print("crawled %d sentences from %d submissions in %.6f seconds" %( len(sents), (num_of_top_posts if bool(num_of_top_posts) else 1000) + (num_of_hot_posts if bool(num_of_hot_posts) else 1000), time.time() - start))
 """
+
+with open("./sents_from_reddit.txt", 'rb') as fin:
+    sents = pickle.load(fin)
+
+fin.close()
+#print(sents[:5])
+#_ = input("cry cry")
+
+fout = open("./reddit.txt", 'w', encoding = "utf-8")
+sent_count = []
+for sent in sents:
+    sent = sent.strip()
+    words = word_tokenize(sent)
+    weak_heteros = []
+    cnt = 0
+    for word in words:
+        if word.lower() in hetero_candidates:
+            cnt += 1
+            weak_heteros.append(word.lower())
+    if cnt >= 2:
+        #do something
+        sent_count.append([myFreq(weak_heteros), sent])
+
+new_sent = sorted(sent_count, reverse = True)
+for (cnt, sent) in new_sent:
+    fout.write(sent)
+    fout.write(' : ' + str(cnt))
+    fout.write('\n')
+fout.close()
+
+
+############WIKTIONARY_RELATED_TEST############
+if input("TEST? Y/n : ") == "Y":
+    noword = ['zero', 'one', 'two', 'get', 'watch', 'eleven', 'good', 'job']
+    yesword = ['tear', 'bow', 'produce', 'wind', 'ellipses', 'bass', 'does', "dove"]
+    for i in range(1):
+            stt = time.time()
+            for word in noword:
+                    wd = wikparser.fetch(word)
+                    wdict = makeDictFromWikiWord(wd)
+                    print(heteronym_check_from_wiktionary(wdict))
+            print(time.time() - stt)
+    for i in range(1):
+            stt = time.time()
+            for word in yesword:
+                    wd = wikparser.fetch(word)
+                    wdict = makeDictFromWikiWord(wd)
+                    print(heteronym_check_from_wiktionary(wdict))
+            print(time.time() - stt)
