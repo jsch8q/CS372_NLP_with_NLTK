@@ -2,6 +2,7 @@ import nltk, re, stanza, time, praw, pickle
 from bs4 import BeautifulSoup
 from urllib import request
 from wiktionaryparser import WiktionaryParser
+from vocabulary.vocabulary import Vocabulary as vb
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk import pos_tag, word_tokenize, sent_tokenize
@@ -9,8 +10,8 @@ from pprint import pprint
 from collections import defaultdict
 
 start = time.time()
-# cmucorpus = nltk.corpus.cmudict 
-# cmudict_dict = cmucorpus.dict()
+cmucorpus = nltk.corpus.cmudict 
+cmudict_dict = cmucorpus.dict()
 # cmuentries = cmucorpus.entries()
 # words_in_cmu = set(cmudict_dict)
 stopword = stopwords.words('english')
@@ -75,6 +76,29 @@ def heteroFromNewCMUDict(new_cmuentries):
             new_hetero.append(entries.split()[0][:-3].lower())
     return set(new_hetero)
 
+def refine_hetero_by_vocab_module(hetero_set):
+    candidate_list = list(hetero_set)
+    print(len(candidate_list))
+    i = 0
+    refined_list = []
+    for word in candidate_list:
+        #print(word)
+        if ((i + 1) % 100) == 0 :
+            print("hetero number %d" %(i + 1))
+        i += 1
+        pron_dict = vb.pronunciation(word, format = "dict")
+        americanHeritageProns = []
+        if type(pron_dict) is bool:
+            pass
+        else :
+            for i in range(len(pron_dict)):
+                if ("American Heritage" in pron_dict[i]['attributionText']):
+                    americanHeritageProns.append(pron_dict[i]['raw'])
+            if len(set(americanHeritageProns)) != 1:
+                refined_list.append(word)
+    return set(refined_list)
+
+
 def heteronym_check_from_nltk(word, new_hetero):
     """
         Finds words with two different pronunciations in cmudict.
@@ -99,6 +123,9 @@ def heteronym_check_from_wiktionary(parsed_dict):
     if len(parsed_dict) < 2:
         return False
     return True
+
+def allInOneHeteroCheck(word):
+    return heteronym_check_from_wiktionary(makeDictFromWikiWord(wikparser.fetch(word)))
     
 
 def heteronyms_from_nltk():
@@ -179,7 +206,10 @@ WiktionaryParser.parse_pronunciations = debugged_parse_pronunciation
 
 new_cmuentries = []
 hetero7 = heteroFromNewCMUDict(new_cmuentries)
-hetero_candidates = heteronyms_from_nltk()
+hetero_semi_candidates = heteronyms_from_nltk()
+hetero_candidates = hetero_semi_candidates#refine_hetero_by_vocab_module(hetero_semi_candidates)
+
+print("preamble time = %.6f seconds" %(time.time() - start))
 
 """
 ###    Initializer of Python Reddit API Wrapper    ###
@@ -234,6 +264,7 @@ fin.close()
 
 fout = open("./reddit.txt", 'w', encoding = "utf-8")
 sent_count = []
+pool = []
 for sent in sents:
     sent = sent.strip()
     words = word_tokenize(sent)
@@ -243,9 +274,24 @@ for sent in sents:
         if word.lower() in hetero_candidates:
             cnt += 1
             weak_heteros.append(word.lower())
-    if cnt >= 2:
+    if cnt :
         #do something
+        pool = pool + weak_heteros
         sent_count.append([myFreq(weak_heteros), sent])
+
+iter = 1
+start2 = time.time()
+new_pool = []
+for word in set(pool):
+    jter = (iter % 50)
+    if jter == 0:
+        print("%d / %d" %(iter, len(set(pool))))
+    iter += 1
+    if allInOneHeteroCheck(word):
+        # TODO : Don't just make a list, make a lookup dict
+        #        and pickle it out... 800 seconds is long
+        new_pool.append(word)
+print("wikparser : %d targets, %.6f seconds" %(len(set(pool)), time.time() - start2))
 
 new_sent = sorted(sent_count, reverse = True)
 for (cnt, sent) in new_sent:
