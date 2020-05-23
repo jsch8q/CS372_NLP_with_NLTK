@@ -91,32 +91,15 @@ def heteronym_check_from_nltk(word, new_hetero):
 
 def heteronym_check_from_wiktionary(parsed_dict):
     """
-        Once the wiktionaryparser gets results from wiktionary,
+        Once the wiktionaryparser gets results from wiktionary
+        and we rearrange the results as we need,
         we can be pretty sure about whether the lexical item is a heteronym or not.
         But fetching is expensive, so this should be used as less as possible.
     """
     if len(parsed_dict) < 2:
         return False
     return True
-    if len(word) < 2:
-        # this case, the word has only one etymology, 
-        # thus only one pronunciation is assigned to this lexical item.
-        return False
-    pron_set = set()
-    for i in range(len(word)):
-        if not '(obsolete)' in wd[i]['definitions']:
-            try :
-                pron_set.add(word[i]['pronunciations']['text'][0])
-            except :
-                #some 'obsolete' usage of words have no pronunciations annotated.
-                pass
-    #pron_set = set([word[i]['pronunciations']['text'][0] for i in range(len(word)) if not '(obsolete)' in wd[i]['definitions']])
-    if len(pron_set) < 2:
-        return False
-    # FIXME : There are words having multiple etymologies but a single pronunciation.
-    #       : Thus, we shall not just blindly return True.
-    # I think this is FIXED.
-    return True
+    
 
 def heteronyms_from_nltk():
     """
@@ -236,7 +219,10 @@ with open("./sents_from_reddit.txt", 'wb') as fout:
     pickle.dump(sents, fout)
 fout.close()
 
-print("crawled %d sentences from %d submissions in %.6f seconds" %( len(sents), (num_of_top_posts if bool(num_of_top_posts) else 1000) + (num_of_hot_posts if bool(num_of_hot_posts) else 1000), time.time() - start))
+print("crawled %d sentences from %d submissions in %.6f seconds" \
+        %( len(sents), (num_of_top_posts if bool(num_of_top_posts) else 1000) \
+        + (num_of_hot_posts if bool(num_of_hot_posts) else 1000),\
+        time.time() - start))
 """
 
 with open("./sents_from_reddit.txt", 'rb') as fin:
