@@ -371,6 +371,8 @@ for sent in sents:
         tagged_sent = sent_to_doc.sentences[0]
         #for word in tagged_sent.words:
             #TODO: do what?
+            # ... Why is here a TODO in the first place? I don't see the reason we should have a TODO here.
+            # THE ACTUAL TODO IS TO REMOVE THIS TODO
             #do = 1 + 1
         annotation_dict = {}
         for word_idx in to_analyze:
@@ -379,7 +381,7 @@ for sent in sents:
             if not word_to_lookup in heterodict:
                 raise ValueError
             word_pos = word_info_from_stanza.xpos
-            # TODO
+            # TODO : REMOVE THIS TODO, THIS TODO IS DONE.
             # if_annotatable_by_pos_tag
             tag_done, IPA_tag = determinable_by_simple_pos(word_to_lookup, word_pos)
             if tag_done :
@@ -392,7 +394,7 @@ for sent in sents:
             #just write code here as if there was [[else:]]
             # else : << like this
             sent_dep_tree = make_dependency_tree(tagged_sent)
-            # start synset analysis with dependency tree... blah blah
+            # TODO : start synset analysis with dependency tree... blah blah
         sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), sent]) 
         #TODO: in the append above, add is_different_pronounciation_related_info for sorting
     
