@@ -120,7 +120,10 @@ def makeDictFromWikiWord(word):
         pron = ''
         pos = ''
         try:
-            pron = word[i]['pronunciations']['text'][0]
+            k = 0
+            while not "IPA" in word[i]['pronunciations']['text'][k]:
+                k += 1
+            pron = word[i]['pronunciations']['text'][k]
             IPA_pron = pron[pron.find("IPA"):]
             num_of_def_chunks = len(word[i]['definitions'])
             for j in range(num_of_def_chunks):
@@ -179,36 +182,7 @@ def debugged_parse_pronunciation(self, word_contents):
         pronunciation_list.append((pronunciation_index, pronunciation_text, audio_links))
     return pronunciation_list
 
-# def simplified_get_word_data(self, language):
-#     """
-#         This code fragment is included so that we can do monkey patching, 
-#         not use somewhere else in the code.
-#     """
-#     contents = self.soup.find_all('span', {'class': 'toctext'})
-#     word_contents = []
-#     start_index = None
-#     for content in contents:
-#         if content.text.lower() == language:
-#             start_index = content.find_previous().text + '.'
-#     if len(contents) != 0 and not start_index:
-#         return []
-#     for content in contents:
-#         index = content.find_previous().text
-#         content_text = self.remove_digits(content.text.lower())
-#         if index.startswith(start_index) and content_text in self.INCLUDED_ITEMS:
-#             word_contents.append(content)
-#     word_data = {
-#         'examples': [], # We are not going to use example sentences
-#         'definitions': self.parse_definitions(word_contents),
-#         'etymologies': self.parse_etymologies(word_contents),
-#         'related': [],
-#         'pronunciations': self.parse_pronunciations(word_contents),
-#     }
-#     json_obj_list = self.map_to_object(word_data)
-#     return json_obj_list
-
 WiktionaryParser.parse_pronunciations = debugged_parse_pronunciation
-# WiktionaryParser.get_word_data = simplified_get_word_data
 
 new_cmuentries = []
 hetero7 = heteroFromNewCMUDict(new_cmuentries)
@@ -267,7 +241,7 @@ with open("./sents_from_reddit.txt", 'rb') as fin:
 fin.close()
 #print(sents[:5])
 #_ = input("cry cry")
-
+"""
 sent_count = []
 pool = []
 for sent in sents:
@@ -283,6 +257,8 @@ for sent in sents:
         #do something
         pool = pool + weak_heteros
         sent_count.append([myFreq(weak_heteros), sent])
+        # TODO : sent_count is not something that should be done here. Move to somewhere else.
+
 
 # iter = 1
 start2 = time.time()
@@ -296,8 +272,6 @@ for word in set(pool):
     tmp_dict = makeDictFromWikiWord(wikparser.fetch(word))
     if heteronym_check_from_wiktionary(tmp_dict):
         hetero_dict[word] = tmp_dict
-        # TODO : Don't just make a list, make a lookup dict
-        #        and pickle it out... 900 seconds is long
         new_pool.append(word)
 print("wikparser : %d targets, %.6f seconds" %(len(set(pool)), time.time() - start2))
 
@@ -312,6 +286,12 @@ for (cnt, sent) in new_sent:
     fout.write(' : ' + str(cnt))
     fout.write('\n')
 fout.close()
+"""
+
+heterodict = {}
+with open("./heteronym_pickle.txt", 'rb') as fin:
+    heterodict = pickle.load(fin)
+fin.close()
 
 
 ############WIKTIONARY_RELATED_TEST############
