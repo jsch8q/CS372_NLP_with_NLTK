@@ -1,6 +1,7 @@
 import nltk, re, stanza, time, praw, pickle
 from bs4 import BeautifulSoup
 from urllib import request
+from anytree import Node, RenderTree
 from wiktionaryparser import WiktionaryParser
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
@@ -17,8 +18,8 @@ stopword = stopwords.words('english')
 wnl = nltk.WordNetLemmatizer()
 wikparser = WiktionaryParser()
 wikparser.RELATIONS = []
-#stanza.download('en')
-#stanza_nlp = stanza.Pipeline('en')
+stanza.download('en')
+stanza_nlp = stanza.Pipeline('en')
 
 # ================================================ #
 # ============     END OF HEADERS     ============ #
@@ -143,6 +144,16 @@ def myFreq(word_list):
         freq_list.append((word_list.count(word), word))
     return freq_list        
 
+def make_dependency_tree(stanza_doc):
+    tagged_sent = stanza_doc.sentences[0]
+    words = sorted(tagged_sent.words, key = lambda x : x.head)
+    node_list = [Node('root')] + [Node('tmpQ40randomX7haha7(7Z)1')] * len(words)
+    for word in words:
+        node_list[int(word.id)] = Node((word.text + word.id, word.xpos), \
+                                         parent = node_list[int(word.head)])
+    return node_list
+    
+
 ########################  Monkey Patching the wiktionaryparser module ########################
 ###### The wiktionaryparser module has a bug of not parsing the pronunciation properly, ######
 ####### and there are some functionalities we don't need but are called unnecessarily. #######
@@ -239,10 +250,8 @@ with open("./sents_from_reddit.txt", 'rb') as fin:
     sents = pickle.load(fin)
 
 fin.close()
-#print(sents[:5])
-#_ = input("cry cry")
+
 """
-sent_count = []
 pool = []
 for sent in sents:
     sent = sent.strip()
@@ -256,19 +265,11 @@ for sent in sents:
     if cnt :
         #do something
         pool = pool + weak_heteros
-        sent_count.append([myFreq(weak_heteros), sent])
-        # TODO : sent_count is not something that should be done here. Move to somewhere else.
 
-
-# iter = 1
 start2 = time.time()
 new_pool = []
 hetero_dict = {}
 for word in set(pool):
-    # jter = (iter % 50)
-    # if jter == 0:
-    #     print("%d / %d" %(iter, len(set(pool))))
-    # iter += 1
     tmp_dict = makeDictFromWikiWord(wikparser.fetch(word))
     if heteronym_check_from_wiktionary(tmp_dict):
         hetero_dict[word] = tmp_dict
@@ -278,20 +279,32 @@ print("wikparser : %d targets, %.6f seconds" %(len(set(pool)), time.time() - sta
 with open("./heteronym_pickle.txt", 'wb') as fout:
     pickle.dump(hetero_dict, fout)
 fout.close()
-
-fout = open("./reddit.txt", 'w', encoding = "utf-8")
-new_sent = sorted(sent_count, reverse = True)
-for (cnt, sent) in new_sent:
-    fout.write(sent)
-    fout.write(' : ' + str(cnt))
-    fout.write('\n')
-fout.close()
 """
 
 heterodict = {}
 with open("./heteronym_pickle.txt", 'rb') as fin:
     heterodict = pickle.load(fin)
 fin.close()
+
+sent_count = []
+for sent in sents:
+    heteros_in_sent = []
+    words = word_tokenize(sent)
+    for word in words:
+        if word in heterodict:
+            heteros_in_sent.append(word)
+    if len(heteros_in_sent):
+        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), sent])
+        # sent_count.append([myFreq(weak_heteros), sent])
+        # TODO : sent_count is not something that should be done here. Move to somewhere else.
+
+fout = open("./reddit.txt", 'w', encoding = "utf-8")
+new_sent = sorted(sent_count, reverse = True)
+for (total_freq, cnt, sent) in new_sent:
+    fout.write(sent)
+    fout.write(' : ' + str(cnt))
+    fout.write('\n')
+fout.close()
 
 
 ############WIKTIONARY_RELATED_TEST############
