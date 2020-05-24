@@ -19,7 +19,7 @@ wnl = nltk.WordNetLemmatizer()
 wikparser = WiktionaryParser()
 wikparser.RELATIONS = []
 stanza.download('en')
-stanza_nlp = stanza.Pipeline('en')
+stanza_nlp = stanza.Pipeline('en', tokenize_no_ssplit=True)
 
 # ================================================ #
 # ============     END OF HEADERS     ============ #
@@ -54,18 +54,28 @@ def get_pars(sred, verbose = True):
         
 def normalize_sent_lists(sent_list):
     """
-        Some reddit "sentences" starts with a lowercase letter.
-        Changes the first letter of the sentence to an uppercase letter.
-        But is this process necessary?
+        Executes the following normalization process:
+        1. remove any parentheses-packed clauses, as they are additional comment-like.
+        2. remove askerisks, which is used as an emphasis mark.
+        3. change weird-looking aphostrophes to usual ones.
+        
+        Also, some reddit "sentences" starts with a lowercase letter.
+        So, change the first letter of the sentence to an uppercase letter.
     """
     num_sent = len(sent_list)
     for i in range(num_sent):
         sent = sent_list[i]
         sent = re.sub(r"\(.*\)|\{.*\}|\[.*\]|\*", "", sent)
+        sent = re.sub(r"“|”", '"', sent)
+        sent = re.sub(r"‘|’", "'", sent)
         if len(sent) :
            sent_list[i] = sent[0].upper() + sent[1:]
 
 def heteroFromNewCMUDict(new_cmuentries):
+    """
+        Brings the newest version of the CMU dictionary, version 0.7b,
+        from the CMU dictionary official website.
+    """
     url = "http://svn.code.sf.net/p/cmusphinx/code/trunk/cmudict/cmudict-0.7b"
     html = re.split("[\r\n]+", request.urlopen(url).read().decode('Latin-1'))
     new_hetero = []
@@ -102,8 +112,10 @@ def heteronym_check_from_wiktionary(parsed_dict):
     return True
 
 def allInOneHeteroCheck(word):
+    """
+        For testing purposes. Input : word string. Output : bool(is it a heteronym?)
+    """
     return heteronym_check_from_wiktionary(makeDictFromWikiWord(wikparser.fetch(word)))
-    
 
 def heteronyms_from_nltk():
     """
@@ -115,6 +127,9 @@ def heteronyms_from_nltk():
     return maybe_heteros
 
 def makeDictFromWikiWord(word):
+    """
+        Parse the results from the WiktionaryParser further so only useful information remains.
+    """
     myDict = defaultdict(dict)
     for i in range(len(word)):
         defs = []
@@ -131,7 +146,10 @@ def makeDictFromWikiWord(word):
                 def_dict = dict(word[i]['definitions'][j])
                 defs = def_dict['text'][1:]
                 pos = def_dict['partOfSpeech']
-                myDict[IPA_pron][pos] = defs
+                if pos in myDict[IPA_pron]:
+                    myDict[IPA_pron][pos] += defs
+                else :
+                    myDict[IPA_pron][pos] = defs
         except:
             #some entries such as 'obsolete' usage of words have no pronunciations annotated.
             pass
@@ -144,15 +162,66 @@ def myFreq(word_list):
         freq_list.append((word_list.count(word), word))
     return freq_list        
 
-def make_dependency_tree(stanza_doc):
-    tagged_sent = stanza_doc.sentences[0]
-    words = sorted(tagged_sent.words, key = lambda x : x.head)
+def make_dependency_tree(stanza_tagged_sent):
+    words = sorted(stanza_tagged_sent.words, key = lambda x : x.head)
     node_list = [Node('root')] + [Node('tmpQ40randomX7haha7(7Z)1')] * len(words)
     for word in words:
         node_list[int(word.id)] = Node((word.text + word.id, word.xpos), \
                                          parent = node_list[int(word.head)])
     return node_list
     
+def determinable_by_simple_pos(word, xpos):
+    if xpos[0] == 'N':
+        simple_pos = 'noun'
+    elif xpos[0] == 'V':
+        simple_pos = 'verb'
+    elif xpos[0] == 'J':
+        simple_pos = 'adjective'
+    elif xpos[0] == 'R':
+        simple_pos = 'adverb'
+    else :
+        simple_pos = 'etc'
+
+    possible_prons = []
+    for IPAs in heterodict[word]:
+        IPA_dict = heterodict[word][IPAs]
+        for pos_in_dict in IPA_dict:
+            if simple_pos == pos_in_dict:
+                possible_prons.append(IPAs)
+    
+    if len(possible_prons) == 1:
+        return (True, possible_prons[0])
+    else :
+        return (False, None)
+
+def determinable_by_tense_pos(word, xpos):
+    if xpos[0] != 'V':
+        return (False, None)
+    #else:
+    if xpos == 'VBD':
+        target_pattern = 'past tense'
+    elif xpos == 'VBG':
+        target_pattern = 'present participle'
+    elif xpos == 'VBN':
+        target_pattern = 'past participle'
+    elif xpos == 'VBZ':
+        target_pattern = 'Third-person singular simple present'
+    if xpos not in {'VB', 'VBP'}:
+        target_pattern_another = 'inflection'
+
+    possible_prons = []
+    for IPAs in heterodict[word]:
+        IPA_dict = heterodict[word][IPAs]
+        for pos_in_dict in IPA_dict:
+            definitions = IPA_dict[pos_in_dict]
+            for definition in definitions:
+                if target_pattern.lower() in definition.lower() \
+                   or target_pattern_another.lower() in definition.lower() :
+                    possible_prons.append(IPAs)
+    if len(possible_prons) == 1:
+        return (True, possible_prons[0])
+    else :
+        return (False, None)
 
 ########################  Monkey Patching the wiktionaryparser module ########################
 ###### The wiktionaryparser module has a bug of not parsing the pronunciation properly, ######
@@ -217,8 +286,8 @@ subreddit = reddit.subreddit('wordplay')
 # word = wikparser.fetch("a")
 # pprint(word)
 
-#num_of_hot_posts = 0
-#num_of_top_posts = 1000
+num_of_hot_posts = 0
+num_of_top_posts = 1000
 
 ### Get posts in the subreddit, sorted by hot and top ###
 # hot_sred = subreddit.hot(limit = num_of_hot_posts)
@@ -241,11 +310,11 @@ with open("./sents_from_reddit.txt", 'wb') as fout:
 fout.close()
 
 print("crawled %d sentences from %d submissions in %.6f seconds" \
-        %( len(sents), (num_of_top_posts if bool(num_of_top_posts) else 1000) \
-        + (num_of_hot_posts if bool(num_of_hot_posts) else 1000),\
+        %( len(sents), (num_of_top_posts if (num_of_top_posts is None) else 1000) \
+        + (num_of_hot_posts if (num_of_hot_posts is None) else 1000),\
         time.time() - start))
-"""
 
+"""
 with open("./sents_from_reddit.txt", 'rb') as fin:
     sents = pickle.load(fin)
 
@@ -265,6 +334,7 @@ for sent in sents:
     if cnt :
         #do something
         pool = pool + weak_heteros
+
 
 start2 = time.time()
 new_pool = []
@@ -289,15 +359,43 @@ fin.close()
 sent_count = []
 for sent in sents:
     heteros_in_sent = []
-    words = word_tokenize(sent)
-    for word in words:
+    to_analyze = []
+    words_list = word_tokenize(sent)
+    for i in range(len(words_list)):
+        word = words_list[i].lower()
         if word in heterodict:
             heteros_in_sent.append(word)
+            to_analyze.append(i)
     if len(heteros_in_sent):
-        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), sent])
-        # sent_count.append([myFreq(weak_heteros), sent])
-        # TODO : sent_count is not something that should be done here. Move to somewhere else.
-
+        sent_to_doc = stanza_nlp(sent)
+        tagged_sent = sent_to_doc.sentences[0]
+        #for word in tagged_sent.words:
+            #TODO: do what?
+            #do = 1 + 1
+        annotation_dict = {}
+        for word_idx in to_analyze:
+            word_info_from_stanza = tagged_sent.words[word_idx]
+            word_to_lookup = words_list[word_idx].lower()
+            if not word_to_lookup in heterodict:
+                raise ValueError
+            word_pos = word_info_from_stanza.xpos
+            # TODO
+            # if_annotatable_by_pos_tag
+            tag_done, IPA_tag = determinable_by_simple_pos(word_to_lookup, word_pos)
+            if tag_done :
+                annotation_dict[(word_to_lookup, word_idx)] = IPA_tag
+                continue
+            tag_done, IPA_tag = determinable_by_tense_pos(word_to_lookup, word_pos)
+            if tag_done:
+                annotation_dict[(word_to_lookup, word_idx)] = IPA_tag
+                continue
+            #just write code here as if there was [[else:]]
+            # else : << like this
+            sent_dep_tree = make_dependency_tree(tagged_sent)
+            # start synset analysis with dependency tree... blah blah
+        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), sent]) 
+        #TODO: in the append above, add is_different_pronounciation_related_info for sorting
+    
 fout = open("./reddit.txt", 'w', encoding = "utf-8")
 new_sent = sorted(sent_count, reverse = True)
 for (total_freq, cnt, sent) in new_sent:
@@ -305,7 +403,6 @@ for (total_freq, cnt, sent) in new_sent:
     fout.write(' : ' + str(cnt))
     fout.write('\n')
 fout.close()
-
 
 ############WIKTIONARY_RELATED_TEST############
 if input("TEST? Y/n : ") == "Y":
