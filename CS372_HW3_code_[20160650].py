@@ -60,7 +60,7 @@ def normalize_sent_lists(sent_list):
     num_sent = len(sent_list)
     for i in range(num_sent):
         sent = sent_list[i]
-        sent = re.sub("\(.*\)|\{.*\}|\[.*\]|\*", "", sent)
+        sent = re.sub(r"\(.*\)|\{.*\}|\[.*\]|\*", "", sent)
         if len(sent) :
            sent_list[i] = sent[0].upper() + sent[1:]
 
@@ -71,7 +71,7 @@ def heteroFromNewCMUDict(new_cmuentries):
     for entries in html:
         if re.match("[A-Z]", entries):
             new_cmuentries.append(entries.split()[0])
-        if re.match("[A-Z]+.*\(1\)", entries):
+        if re.match(r"[A-Z]+.*\(1\)", entries):
             new_hetero.append(entries.split()[0][:-3].lower())
     return set(new_hetero)
 
@@ -141,8 +141,9 @@ def myFreq(word_list):
     return freq_list        
 
 ########################  Monkey Patching the wiktionaryparser module ########################
-###### The wiktionaryparser module has a bug of not parsing the pronunciation properly. ######
-############## The following code is an internal method defined in the module. ###############
+###### The wiktionaryparser module has a bug of not parsing the pronunciation properly, ######
+####### and there are some functionalities we don't need but are called unnecessarily. #######
+############## The following codes are internal methods defined in the module. ###############
 
 def debugged_parse_pronunciation(self, word_contents):
     """
@@ -169,7 +170,7 @@ def debugged_parse_pronunciation(self, word_contents):
             super_tag.clear()
         for list_element in list_tag.find_all('li'):
             for audio_tag in list_element.find_all('div', {'class': 'mediaContainer'}):
-                audio_links.append(audio_tag.find('source')['src'])
+                #audio_links.append(audio_tag.find('source')['src'])
                 audio_tag.extract()
             for nested_list_element in list_element.find_all('ul'):
                 nested_list_element.extract()
@@ -178,7 +179,36 @@ def debugged_parse_pronunciation(self, word_contents):
         pronunciation_list.append((pronunciation_index, pronunciation_text, audio_links))
     return pronunciation_list
 
+# def simplified_get_word_data(self, language):
+#     """
+#         This code fragment is included so that we can do monkey patching, 
+#         not use somewhere else in the code.
+#     """
+#     contents = self.soup.find_all('span', {'class': 'toctext'})
+#     word_contents = []
+#     start_index = None
+#     for content in contents:
+#         if content.text.lower() == language:
+#             start_index = content.find_previous().text + '.'
+#     if len(contents) != 0 and not start_index:
+#         return []
+#     for content in contents:
+#         index = content.find_previous().text
+#         content_text = self.remove_digits(content.text.lower())
+#         if index.startswith(start_index) and content_text in self.INCLUDED_ITEMS:
+#             word_contents.append(content)
+#     word_data = {
+#         'examples': [], # We are not going to use example sentences
+#         'definitions': self.parse_definitions(word_contents),
+#         'etymologies': self.parse_etymologies(word_contents),
+#         'related': [],
+#         'pronunciations': self.parse_pronunciations(word_contents),
+#     }
+#     json_obj_list = self.map_to_object(word_data)
+#     return json_obj_list
+
 WiktionaryParser.parse_pronunciations = debugged_parse_pronunciation
+# WiktionaryParser.get_word_data = simplified_get_word_data
 
 new_cmuentries = []
 hetero7 = heteroFromNewCMUDict(new_cmuentries)
@@ -238,7 +268,6 @@ fin.close()
 #print(sents[:5])
 #_ = input("cry cry")
 
-fout = open("./reddit.txt", 'w', encoding = "utf-8")
 sent_count = []
 pool = []
 for sent in sents:
@@ -255,20 +284,28 @@ for sent in sents:
         pool = pool + weak_heteros
         sent_count.append([myFreq(weak_heteros), sent])
 
-iter = 1
+# iter = 1
 start2 = time.time()
 new_pool = []
+hetero_dict = {}
 for word in set(pool):
-    jter = (iter % 50)
-    if jter == 0:
-        print("%d / %d" %(iter, len(set(pool))))
-    iter += 1
-    if allInOneHeteroCheck(word):
+    # jter = (iter % 50)
+    # if jter == 0:
+    #     print("%d / %d" %(iter, len(set(pool))))
+    # iter += 1
+    tmp_dict = makeDictFromWikiWord(wikparser.fetch(word))
+    if heteronym_check_from_wiktionary(tmp_dict):
+        hetero_dict[word] = tmp_dict
         # TODO : Don't just make a list, make a lookup dict
-        #        and pickle it out... 800 seconds is long
+        #        and pickle it out... 900 seconds is long
         new_pool.append(word)
 print("wikparser : %d targets, %.6f seconds" %(len(set(pool)), time.time() - start2))
 
+with open("./heteronym_pickle.txt", 'wb') as fout:
+    pickle.dump(hetero_dict, fout)
+fout.close()
+
+fout = open("./reddit.txt", 'w', encoding = "utf-8")
 new_sent = sorted(sent_count, reverse = True)
 for (cnt, sent) in new_sent:
     fout.write(sent)
