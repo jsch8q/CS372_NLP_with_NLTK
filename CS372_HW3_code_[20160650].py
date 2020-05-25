@@ -2,14 +2,16 @@ import nltk, re, stanza, time, praw, pickle
 from bs4 import BeautifulSoup
 from urllib import request
 from anytree import Node, RenderTree
-from wiktionaryparser import WiktionaryParser
+from wiktionaryparser import WiktionaryParser #version must be exactly 0.0.97 to do monkey patching
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk import pos_tag, word_tokenize, sent_tokenize
+from nltk.corpus import wordnet_ic
 from pprint import pprint
 from collections import defaultdict
 
 start = time.time()
+brown_ic = wordnet_ic.ic('ic-brown.dat')
 cmucorpus = nltk.corpus.cmudict 
 cmudict_dict = cmucorpus.dict()
 # cmuentries = cmucorpus.entries()
@@ -58,6 +60,7 @@ def normalize_sent_lists(sent_list):
         1. remove any parentheses-packed clauses, as they are additional comment-like.
         2. remove askerisks, which is used as an emphasis mark.
         3. change weird-looking aphostrophes to usual ones.
+        4. remove enumeration markings at the beginning of the sentence, such as #1 or 1).
         
         Also, some reddit "sentences" starts with a lowercase letter.
         So, change the first letter of the sentence to an uppercase letter.
@@ -68,6 +71,7 @@ def normalize_sent_lists(sent_list):
         sent = re.sub(r"\(.*\)|\{.*\}|\[.*\]|\*", "", sent)
         sent = re.sub(r"“|”", '"', sent)
         sent = re.sub(r"‘|’", "'", sent)
+        sent = re.sub(r"^[0-9]+[\+-\.|\)|\]|\}]+\s|^[\#]+[0-9]+[\+-\.|\)|\]|\}]*\s", "", sent)
         if len(sent) :
            sent_list[i] = sent[0].upper() + sent[1:]
 
@@ -110,12 +114,6 @@ def heteronym_check_from_wiktionary(parsed_dict):
     if len(parsed_dict) < 2:
         return False
     return True
-
-def allInOneHeteroCheck(word):
-    """
-        For testing purposes. Input : word string. Output : bool(is it a heteronym?)
-    """
-    return heteronym_check_from_wiktionary(makeDictFromWikiWord(wikparser.fetch(word)))
 
 def heteronyms_from_nltk():
     """
@@ -163,13 +161,107 @@ def myFreq(word_list):
     return freq_list        
 
 def make_dependency_tree(stanza_tagged_sent):
-    words = sorted(stanza_tagged_sent.words, key = lambda x : x.head)
-    node_list = [Node('root')] + [Node('tmpQ40randomX7haha7(7Z)1')] * len(words)
+    words = stanza_tagged_sent.words
+    remaining_indices = [i for i in range(len(words))]
+    avoid_duplicate = 'unassinged'
+    node_list = [Node('root')] + [Node(avoid_duplicate)] * len(words)
     for word in words:
-        node_list[int(word.id)] = Node((word.text + word.id, word.xpos), \
+        while len(remaining_indices) > 0:
+            for i in remaining_indices:
+                word = words[i]
+                if node_list[int(word.head)].name != avoid_duplicate:
+                    remaining_indices.remove(i)
+                    node_list[int(word.id)] = Node((word.text, word.id, word.xpos), \
                                          parent = node_list[int(word.head)])
     return node_list
+
+def get_helper_words_from_tree(dep_tree, node):
+    res_idx = []
+    descendants = [child for child in node.children]
+    while len(res_idx) == 0 and len(descendants) > 0:
+        grandchilds = []
+        for child in descendants:
+            if child.name[2][0] in 'NVJ':
+                res_idx.append(child.name[1])
+            grandchilds += list(child.children)
+        descendants = grandchilds
+    if len(res_idx) > 0:
+        return res_idx
+    #else : look for parent
+    parent_node = node.parent
+    if parent_node.name != 'root':
+        return [parent_node.name[1]]
+    #else : parent is root, search for siblings' subtrees, i.e. the rest of the tree
+    descendants = [sibling for sibling in node.siblings]
+    while len(res_idx) == 0 and len(descendants) > 0:
+        grandchilds = []
+        for child in descendants:
+            if child.name[2][0] in 'NVJ':
+                res_idx.append(child.name[1])
+            grandchilds += list(child.children)
+        descendants = grandchilds
+    return res_idx
     
+
+def estimate_str_similarity(def_str, helper_word):
+    #path_similarity? something related to that
+    # assuming helper_word is always noun verb or adj
+    pos_tagged_def_str = tag_sent(def_str)
+    target_pos = 'n' if helper_word.xpos[0] == 'N' else ('v' if helper_word.xpos[0] == 'V' else 'a')
+    helper_word_bag = [synset for synset in wn.synsets(wnl.lemmatize(helper_word.text, target_pos))\
+                                if synset.pos() == target_pos]
+    maximum_similarity = 0.0
+    for tagged_word, pos in pos_tagged_def_str:
+        if not pos[0] in {'N', 'V', 'J'}:
+            continue
+        synset_bag = wn.synsets(tagged_word)
+        for synset in synset_bag:
+            if synset.pos() == target_pos:
+                for word in helper_word_bag:
+                    tmp_similarity = wn.path_similarity(word, synset)
+                    if tmp_similarity is None:
+                        tmp_similarity = -1
+                    if tmp_similarity > maximum_similarity :
+                        maximum_similarity = tmp_similarity
+    
+    return maximum_similarity
+
+def estimate_list_similarity(def_pron_list, helper_word):
+    #helper_word is stanza-word
+    #def_pron_list : [(definition string1, pron1), (definition string2, pron2), ...]
+    def_list = [def_str for (def_str, pron, pos) in def_pron_list]
+    normalize_sent_lists(def_list)
+    scores = [0.0] * len(def_list)
+    for i in range(len(def_list)):
+        #estimate_str_similarity
+        scores[i] = estimate_str_similarity(def_list[i], helper_word)
+        #point MLE?
+    return scores
+
+def infer_pronunciation(def_pron_list, helper_word):
+    pron_list = [pron for (def_str, pron, pos) in def_pron_list]
+    score_list = estimate_list_similarity(def_pron_list, helper_word)
+    idx = 0
+    highscore = score_list[0]
+    for i in range(len(score_list)):
+        if score_list[i] > highscore:
+            highscore = score_list[i]
+            idx = i
+    return (pron_list[idx], highscore, def_pron_list[idx][2] )
+
+def reverse_dict(heterodict_entry, target_pos):
+    #target_pos here should be full-name pos
+    def_pron_list = []
+    for IPA in heterodict_entry:
+        defs = heterodict_entry[IPA]
+        for pos in defs:
+            if target_pos in pos:
+                work_list = defs[pos]
+                for deftext in work_list:
+                    def_pron_list.append((deftext, IPA, pos))
+    return def_pron_list
+
+
 def determinable_by_simple_pos(word, xpos):
     if xpos[0] == 'N':
         simple_pos = 'noun'
@@ -198,6 +290,9 @@ def determinable_by_tense_pos(word, xpos):
     if xpos[0] != 'V':
         return (False, None)
     #else:
+    target_pattern = 'base form'
+    target_pattern_another = 'base form'
+
     if xpos == 'VBD':
         target_pattern = 'past tense'
     elif xpos == 'VBG':
@@ -206,6 +301,7 @@ def determinable_by_tense_pos(word, xpos):
         target_pattern = 'past participle'
     elif xpos == 'VBZ':
         target_pattern = 'Third-person singular simple present'
+
     if xpos not in {'VB', 'VBP'}:
         target_pattern_another = 'inflection'
 
@@ -271,7 +367,7 @@ hetero_candidates = hetero_semi_candidates#refine_hetero_by_vocab_module(hetero_
 
 print("preamble time = %.6f seconds" %(time.time() - start))
 
-"""
+
 ###    Initializer of Python Reddit API Wrapper    ###
 ### Below is a routine of authenticating via OAuth2 ##
 reddit = praw.Reddit(client_id = "ssLUMowJL-2Ulw", \
@@ -280,11 +376,6 @@ reddit = praw.Reddit(client_id = "ssLUMowJL-2Ulw", \
                      user_agent='jsch89')
 
 subreddit = reddit.subreddit('wordplay')
-
-
-
-# word = wikparser.fetch("a")
-# pprint(word)
 
 num_of_hot_posts = 0
 num_of_top_posts = 1000
@@ -310,17 +401,14 @@ with open("./sents_from_reddit.txt", 'wb') as fout:
 fout.close()
 
 print("crawled %d sentences from %d submissions in %.6f seconds" \
-        %( len(sents), (num_of_top_posts if (num_of_top_posts is None) else 1000) \
-        + (num_of_hot_posts if (num_of_hot_posts is None) else 1000),\
+        %( len(sents), (num_of_top_posts if (num_of_top_posts is not None) else 1000) \
+        + (num_of_hot_posts if (num_of_hot_posts is not None) else 1000),\
         time.time() - start))
 
-"""
 with open("./sents_from_reddit.txt", 'rb') as fin:
     sents = pickle.load(fin)
-
 fin.close()
 
-"""
 pool = []
 for sent in sents:
     sent = sent.strip()
@@ -335,7 +423,6 @@ for sent in sents:
         #do something
         pool = pool + weak_heteros
 
-
 start2 = time.time()
 new_pool = []
 hetero_dict = {}
@@ -349,7 +436,6 @@ print("wikparser : %d targets, %.6f seconds" %(len(set(pool)), time.time() - sta
 with open("./heteronym_pickle.txt", 'wb') as fout:
     pickle.dump(hetero_dict, fout)
 fout.close()
-"""
 
 heterodict = {}
 with open("./heteronym_pickle.txt", 'rb') as fin:
@@ -358,6 +444,7 @@ fin.close()
 
 sent_count = []
 for sent in sents:
+    print(sent)
     heteros_in_sent = []
     to_analyze = []
     words_list = word_tokenize(sent)
@@ -369,58 +456,56 @@ for sent in sents:
     if len(heteros_in_sent):
         sent_to_doc = stanza_nlp(sent)
         tagged_sent = sent_to_doc.sentences[0]
-        #for word in tagged_sent.words:
-            #TODO: do what?
-            # ... Why is here a TODO in the first place? I don't see the reason we should have a TODO here.
-            # THE ACTUAL TODO IS TO REMOVE THIS TODO
-            #do = 1 + 1
+
         annotation_dict = {}
-        for word_idx in to_analyze:
+        for word_idx in to_analyze: 
             word_info_from_stanza = tagged_sent.words[word_idx]
             word_to_lookup = words_list[word_idx].lower()
             if not word_to_lookup in heterodict:
                 raise ValueError
             word_pos = word_info_from_stanza.xpos
-            # TODO : REMOVE THIS TODO, THIS TODO IS DONE.
-            # if_annotatable_by_pos_tag
             tag_done, IPA_tag = determinable_by_simple_pos(word_to_lookup, word_pos)
             if tag_done :
-                annotation_dict[(word_to_lookup, word_idx)] = IPA_tag
+                annotation_dict[(word_to_lookup, word_idx)] = (IPA_tag, word_pos)
                 continue
             tag_done, IPA_tag = determinable_by_tense_pos(word_to_lookup, word_pos)
             if tag_done:
-                annotation_dict[(word_to_lookup, word_idx)] = IPA_tag
+                annotation_dict[(word_to_lookup, word_idx)] = (IPA_tag, word_pos)
                 continue
-            #just write code here as if there was [[else:]]
-            # else : << like this
             sent_dep_tree = make_dependency_tree(tagged_sent)
-            # TODO : start synset analysis with dependency tree... blah blah
-        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), sent]) 
-        #TODO: in the append above, add is_different_pronounciation_related_info for sorting
+            helpers_indices = get_helper_words_from_tree(sent_dep_tree,  sent_dep_tree[int(word_info_from_stanza.id)] )
+            full_name_pos = 'noun' if word_pos[0] == 'N' else ('verb' if word_pos[0] == 'V'\
+                                         else ('adjective' if word_pos[0] == 'J' else ('adverb' if word_pos[0] == 'R' else '')))
+            def_pron_list = reverse_dict(heterodict[word_to_lookup], full_name_pos)
+            if len(def_pron_list) == 0:
+                #this case, pos_tagger tagged a POS not listed in wiktionary. We should retry without using POS information.
+                def_pron_list = reverse_dict(heterodict[word_to_lookup], '')
+            inference_result = []
+            for helpers_index in helpers_indices:
+                IPA_tag, likely, infered_pos = infer_pronunciation(def_pron_list, tagged_sent.words[int(helpers_index) - 1])
+                inference_result.append((IPA_tag, likely, infered_pos))
+            if len(inference_result) == 0:
+                # In this case, no useful related words to the heteronym was found in the sentence...
+                # which in other words, does not matter much or cannot determine decisively how we read this heteronym;
+                # for example, the sentence "Read it." can be a response to a question "Did you read?", or an impertative sentence.
+                IPA_tag = list(heterodict[word_to_lookup])[0]
+                annotation_dict[(word_to_lookup, word_idx)] = ( IPA_tag , list(heterodict[word_to_lookup][IPA_tag])[0] )
+                continue
+            final_IPA_tag = inference_result[0][0]
+            max_likely = inference_result[0][1]
+            final_infered_pos = inference_result[0][2]
+            for result in inference_result:
+                if result[1] > max_likely:
+                    max_likely = result[1]
+                    final_IPA_tag = result[0]
+                    final_infered_pos = result[2]
+            annotation_dict[(word_to_lookup, word_idx)] = (final_IPA_tag, final_infered_pos)
+        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), len(set(annotation_dict.values())), sent, annotation_dict]) 
     
 fout = open("./reddit.txt", 'w', encoding = "utf-8")
 new_sent = sorted(sent_count, reverse = True)
-for (total_freq, cnt, sent) in new_sent:
+for (total_freq, cnt, num_of_distinct_pron, sent, annotations) in new_sent:
     fout.write(sent)
-    fout.write(' : ' + str(cnt))
+    fout.write(' : ' + str(annotations))
     fout.write('\n')
 fout.close()
-
-############WIKTIONARY_RELATED_TEST############
-if input("TEST? Y/n : ") == "Y":
-    noword = ['zero', 'one', 'two', 'get', 'watch', 'eleven', 'good', 'job']
-    yesword = ['tear', 'bow', 'produce', 'wind', 'ellipses', 'bass', 'does', "dove"]
-    for i in range(1):
-            stt = time.time()
-            for word in noword:
-                    wd = wikparser.fetch(word)
-                    wdict = makeDictFromWikiWord(wd)
-                    print(heteronym_check_from_wiktionary(wdict))
-            print(time.time() - stt)
-    for i in range(1):
-            stt = time.time()
-            for word in yesword:
-                    wd = wikparser.fetch(word)
-                    wdict = makeDictFromWikiWord(wd)
-                    print(heteronym_check_from_wiktionary(wdict))
-            print(time.time() - stt)

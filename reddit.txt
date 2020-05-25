@@ -1,0 +1,208 @@
+However, read does not rhyme with lead, nor does lead with read. : {('read', 2): ('IPA: /ɹid/', 'verb'), ('lead', 7): ('IPA: /liːd/', 'noun'), ('lead', 11): ('IPA: /liːd/', 'verb'), ('read', 13): ('IPA: /ɹid/', 'verb')}
+I was too tired to lift the tire to the second tier of the shelf and shed a tear as I felt the muscle tear in my thigh. : {('tear', 18): ('IPA: /tɪə/', 'noun'), ('tear', 24): ('IPA: /tɪə/', 'noun')}
+House house sows house sow's sows how sow's sows house house house sows. : {('sow', 4): ('IPA: /səʊ/', 'VBP'), ('sow', 8): ('IPA: /səʊ/', 'VB')}
+In school i just had to read Romeo and Juliet, but now i know enough to wish we had read hamlet. : {('read', 6): ('IPA: /ɹid/', 'verb'), ('read', 20): ('IPA: /ɹɛd/', 'VBN')}
+I believe that I will read the red book I've already read. : {('read', 5): ('IPA: /ɹid/', 'verb'), ('read', 12): ('IPA: /ɹɛd/', 'VBN')}
+Another good bit of wordplay: "I can read writin', but I can't read right. : {('read', 9): ('IPA: /ɹid/', 'verb'), ('read', 17): ('IPA: /ɹid/', 'verb')}
+All objects have opposites in the form of objects made of antimatter. : {('objects', 1): ('IPA: /ˈɒbdʒɛkts/', 'NNS'), ('objects', 8): ('IPA: /ˈɒbdʒɛkts/', 'NNS')}
+A bass might eat the bass if the singer chanced to drown. : {('bass', 1): ('IPA: /beɪs/', 'noun'), ('bass', 5): ('IPA: /beɪs/', 'noun')}
+A bass might eat a bass when dining on the town; : {('bass', 1): ('IPA: /beɪs/', 'noun'), ('bass', 5): ('IPA: /beɪs/', 'noun')}
+With well-timed wisdom, Walter was wound with wide, worsted wrappers, which wonderfully well withstood winter's withering, whistling winds. : {('wound', 6): ('IPA: /wuːnd/', 'NNP'), ('winds', 22): ('IPA: /wɪndz/', 'noun')}
+Similarly, read rhymes with lead. : {('read', 2): ('IPA: /ɹid/', 'verb'), ('lead', 5): ('IPA: /liːd/', 'noun')}
+Read rhymes with lead. : {('read', 0): ('IPA: /ɹid/', 'verb'), ('lead', 3): ('IPA: /liːd/', 'noun')}
+The expression refers to the cost of the visa, about US $50, and the fact that, depending on how close you live to the immigration office, it can take up to a day of your time to get it. : {('close', 23): ('IPA: /kləʊs/', 'JJ'), ('live', 25): ('IPA: /lɪv/', 'VBP')}
+It's homophonically similar if you adopt a quas-Germanic/Swedish chef accent, but it's semantically garbled when read 'correctly'. : {('accent', 10): ('IPA: /ˈak.sənt/', 'noun'), ('read', 18): ('IPA: /ɹid/', 'verb')}
+Welcome whistling was waking Wisbeach woods when winter's windy warfare waxed weaker. : {('windy', 9): ('IPA: /ˈwaɪndi/', 'adjective')}
+Or whether the weather be windy : {('windy', 5): ('IPA: /ˈwɪndi/', 'adjective')}
+Wisbeach woods were wild with wildflowers; warm, westerly winds whispered where willows were waving; wood-pigeons, wrens, woodpeckers were warbling wild woodnotes. : {('winds', 10): ('IPA: /wɪndz/', 'NNS')}
+Wholly without warning, wild wet winds woke within Wisbeach woods, whistling where Winifred wandered with Walter; weeping willows were wailing weirdly; waging war with wind-tossed waters. : {('winds', 6): ('IPA: /wɪndz/', 'NNS')}
+Wan, white, woe-begone was Walter; wayward, wilful, worn with weakness, wasted, waxing weaker whenever winter's wild, withering winds were wailing. : {('winds', 26): ('IPA: /waɪndz/', 'verb')}
+The flower remained in the soil, withstanding the howling wind. : {('wind', 10): ('IPA: /ˈwɪnd/', 'noun')}
+Stop - If you don't "stop," you might wind up on "top" of another car. : {('wind', 12): ('IPA: /waɪnd/', 'verb')}
+Whoops. : {('whoops', 0): ('IPA: /ʍʊps/, /ʍuːps/, /wʊps/', 'interjection')}
+I didn't even think to look at the sub name haha whoops : {('whoops', 12): ('IPA: /wuːps/, /huːps/', 'verb')}
+To tear someone apart with your words. : {('tear', 1): ('IPA: /tɛə/', 'verb')}
+Tear those theoretical tickets to trash, these them text techniques, touch-down to teach, the thinking's the tuition. : {('tear', 0): ('IPA: /tɛə/', 'verb')}
+You know one of the common signs of a sociopath is attacking a person when confronted with an argument rather than the subject of discussion. : {('subject', 22): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+What do you call an underage student with a coal extractor for a father, who's taking sad sounding songs as a second subject in college? : {('subject', 24): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+The subject matter is disturbing but it is beautifully written : {('subject', 1): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+Some, like me, take a liking to the subject and make it one of their careers. : {('subject', 10): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+Ok, I will make more research on the subject just to be sure. : {('subject', 9): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+Line 1 and line 2 provide evidence that the first-word adjective does not describe the subject. : {('subject', 15): ('IPA: /səbˈdʒɛkt/, /sʌbˈdʒɛkt/', 'VB')}
+I need a catchy title as the subject matter will fry the examiners head. : {('subject', 7): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+I kinda fixate on this Susan/Suzanne subject when I find weird references to make when finding wacky ideas for wordplay. : {('subject', 6): ('IPA: /ˈsʌb.dʒɛkt/', 'adjective')}
+Compared to other agreements like "totally" or "completely," "100%" implies the subject was considered on a scale so fine it has a hundred notches. : {('subject', 19): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+Also, you could tell her that the famous primatologist Jane Goodall has a new subject, Ril. : {('subject', 15): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+"100.0%"  implies you've weighed the subject down to one part in a thousand. : {('subject', 9): ('IPA: /ˈsʌb.dʒɛkt/', 'NN')}
+They sow not neither shall they reap - : {('sow', 1): ('IPA: /səʊ/', 'VBP')}
+Sow what? : {('sow', 0): ('IPA: /səʊ/', 'VB')}
+No, it might sow anger : {('sow', 4): ('IPA: /səʊ/', 'VB')}
+His gardening wife the seeds did sow, : {('sow', 6): ('IPA: /səʊ/', 'VB')}
+His farming daughter fed the sow. : {('sow', 5): ('IPA: /saʊ/', 'NN')}
+A sow that farrows shall her piglets keep. : {('sow', 1): ('IPA: /saʊ/', 'NN')}
+But, I'm not claiming to be sacred : {('sacred', 8): ('IPA: /ˈseɪkɹɪd/', 'JJ')}
+The word resign just needs a dash in it to have an opposite meaning. : {('resign', 2): ('IPA: /ɹɪˈzaɪn/', 'verb')}
+Being blunt can result in a cutting remark. : {('remark', 7): ('IPA: /ɹɪˈmɑɹk/', 'noun')}
+ If you refuse his requests, he could be a Nogan. : {('refuse', 2): ('IPA: /ɹɪˈfjuːz/', 'verb')}
+All the rest unimpressed without redress tossed aside and wasted. : {('redress', 5): ('IPA: /ɹɪˈdɹɛs/', 'noun')}
+A radical nun at an anarchist boarding school is a rabble-rousing rebel rouser. : {('rebel', 11): ('IPA: /ˈɹɛbəl/', 'noun')}
+When I was younger I read Vaseline as vase-line despite knowing of the lubricant : {('read', 5): ('IPA: /ɹɛd/', 'VBD')}
+Well you could, but it might be hard to read : {('read', 10): ('IPA: /ɹid/', 'verb')}
+Urine for a treat if you read this. : {('read', 6): ('IPA: /ɹid/', 'verb')}
+Totally didn't read the last sentence of your paragraph. : {('read', 3): ('IPA: /ɹid/', 'verb')}
+This made me think of a  I read a few years ago where every word started with the letter 'W.' : {('read', 7): ('IPA: /ɹɛd/', 'VBD')}
+This is stolen from something I've read before... where did you find it? : {('read', 7): ('IPA: /ɹɛd/', 'VBN')}
+The used pun should make contextual sense when read in the thread. : {('read', 8): ('IPA: /ɹɛd/', 'VBN')}
+That was fun to read. : {('read', 4): ('IPA: /ɹid/', 'verb')}
+Similarly, no slot for 'same spelling but different sound and meaning,' such as the present and past tense versions of "read" or words that can serve as different parts of speech . : {('read', 24): ('IPA: /ɹid/', 'verb')}
+Read. : {('read', 0): ('IPA: /ɹid/', 'verb')}
+Read. : {('read', 0): ('IPA: /ɹid/', 'verb')}
+Read the poem "The Chaos" : {('read', 0): ('IPA: /ɹid/', 'verb')}
+Read it out loud, and you'll hear the same sounds as the famous poem. : {('read', 0): ('IPA: /ɹid/', 'verb')}
+Read below. : {('read', 0): ('IPA: /ɹid/', 'verb')}
+Peruse means to read through. : {('read', 3): ('IPA: /ɹid/', 'verb')}
+Now read it again, but without any commas! : {('read', 1): ('IPA: /ɹid/', 'verb')}
+Neither does Read. : {('read', 2): ('IPA: /ɹid/', 'verb')}
+My stoned ass shit itself trying to read this after it blew my mind : {('read', 7): ('IPA: /ɹid/', 'verb')}
+My example would read evil olive. : {('read', 3): ('IPA: /ɹid/', 'verb')}
+LPT, So instead of wasting time writing the whole word, just write the top 50% and use a mirror to read it. : {('read', 23): ('IPA: /ɹid/', 'verb')}
+It says to each word, with care, read : {('read', 9): ('IPA: /ɹid/', 'verb')}
+In a book you may have read : {('read', 6): ('IPA: /ɹɛd/', 'VBN')}
+I'm going to giggle every time I read this. : {('read', 8): ('IPA: /ɹɛd/', 'VBD')}
+I would change the second quote to read in a loving or friendly relationship since this is why you and your best friends often get into a huff over minor differences of opinion. : {('read', 7): ('IPA: /ɹid/', 'verb')}
+I think it's more probable that it's "that most fear", in which case the entire sentence would read: : {('read', 22): ('IPA: /ɹid/', 'verb')}
+I take any sentence, heard or read, and categorize it into 1 of 5 tiers based on its characters. : {('read', 7): ('IPA: /ɹid/', 'verb')}
+I read the first one as "bald teeth". : {('read', 1): ('IPA: /ɹɛd/', 'VBD')}
+I read it all the way through, yesterday. : {('read', 1): ('IPA: /ɹɛd/', 'VBD')}
+I originally read it in Bill Bryson's Mother Tongue, I think that was written in the 80s or early 90s. : {('read', 2): ('IPA: /ɹɛd/', 'VBD')}
+I need to read more physics before I pull that one off. : {('read', 3): ('IPA: /ɹid/', 'verb')}
+I hate the fact that i read this with no problem even more : {('read', 6): ('IPA: /ɹid/', 'verb')}
+I don't know how to feel about having read this aloud. : {('read', 9): ('IPA: /ɹɛd/', 'VBN')}
+I am so unused to these words being used in this way it is almost impossible for me to read. : {('read', 19): ('IPA: /ɹid/', 'verb')}
+Honestly, I feel in title-d to skip ahead from the read heading, a red herring, to the thread to which the heading led. : {('read', 11): ('IPA: /ɹid/', 'verb')}
+He likes to read. : {('read', 3): ('IPA: /ɹid/', 'verb')}
+Good read! : {('read', 1): ('IPA: /ɹid/', 'NN')}
+Did anyone else try to read this aloud and gave up after the first sentence? : {('read', 5): ('IPA: /ɹid/', 'verb')}
+But you'll have to read the rest of the piece to understand it :) : {('read', 5): ('IPA: /ɹid/', 'verb')}
+But Read. : {('read', 1): ('IPA: /ɹid/', 'verb')}
+Antigrams: please read. : {('read', 3): ('IPA: /ɹid/', 'verb')}
+And who was that person before they were born you have a soul its in your eyes it allows you to read these sleepy pies so who created your soul god maybe but we dont know till were gone : {('read', 21): ('IPA: /ɹid/', 'verb')}
+Also, read the Chaos, easily one of my favorite poems. : {('read', 2): ('IPA: /ɹid/', 'verb')}
+All members of  are forbidden from guessing as they have read the story and know the answer. : {('read', 10): ('IPA: /ɹɛd/', 'VBN')}
+Ah, I'm supposed to read it in Homer Simpson's voice! : {('read', 6): ('IPA: /ɹid/', 'verb')}
+ Since you cannot read, there is no way your parents could have been married. : {('read', 4): ('IPA: /ɹid/', 'verb')}
+Putting my geek's hat on, it originally meant the same as foreigner, and foreigners of whatever era had customs that were hard to understand by the natives. : {('putting', 0): ('IPA: /ˈpʊtɪŋ/, [ˈpʰʊtɪŋ]', 'verb')}
+If half-assing something means not putting complete effort into it, then giving something your all would be called whole-assing it. : {('putting', 5): ('IPA: /ˈpʊtɪŋ/, [ˈpʰʊtɪŋ]', 'verb')}
+I've no problem with putting the "play" in /r/wordplay! : {('putting', 5): ('IPA: /ˈpʌtɪŋ/, [ˈpʰʌtɪŋ]', 'verb')}
+Another one of that sort would be the old custom of putting wanted posters in the post office. : {('putting', 11): ('IPA: /ˈpʊtɪŋ/, [ˈpʰʊtɪŋ]', 'verb')}
+When I can't find myself or when I can't progress, : {('progress', 11): ('IPA: /pɹəˈɡɹɛs/', 'VB')}
+With all the trade tariffs recently, they decided to manufacture and produce their own locally-based steel in a service called Google Chrome. : {('produce', 12): ('IPA: /pɹəˈdjuːs/, /pɹəˈd͡ʒuːs/', 'VB')}
+Microbes produce our smelly things. : {('produce', 1): ('IPA: /pɹəˈdjuːs/, /pɹəˈd͡ʒuːs/', 'VBP')}
+For example, a word with seven letters where every second letter is used will produce a four-letter word and a three-letter word. : {('produce', 15): ('IPA: /pɹəˈdjuːs/, /pɹəˈd͡ʒuːs/', 'VB')}
+Eggcorns produce a new meaning that is at least plausible in the same context. : {('produce', 1): ('IPA: /pɹəˈdjuːs/, /pɹəˈd͡ʒuːs/', 'VBP')}
+The process of metathesis has altered the shape of many familiar words in the , as well. : {('process', 1): ('IPA: /ˈpɹəʊsɛs/', 'NN')}
+I think I might have performed a Multisyllabic, Interdisciplinary Assassination on haikus.... and came up with a band name in the process. : {('process', 24): ('IPA: /ˈpɹəʊsɛs/', 'verb')}
+Ex-sponge-ment- the process of divorcing your sponge : {('process', 2): ('IPA: /ˈpɹəʊsɛs/', 'NN')}
+It's OK; the friend that can't take a little pungent punishment from a pundit punter punster predicates the possibility that posited perplexed pal was probably better off lost anyway... : {('predicates', 19): ('IPA: /ˈpɹɛdɪˌkeɪts/', 'VBZ')}
+The Mods Prayer : {('prayer', 2): ('IPA: /pɹɛə(ɹ)/', 'noun')}
+Purple people provide plenty of piano performances and punch pedophile perverts. : {('piano', 5): ('IPA: /piˈænoʊ/', 'NN')}
+Inside the package was a 1975 copy of Player Piano by my boy Kurt Vonnegut ! : {('piano', 9): ('IPA: /piˈænoʊ/', 'NNP')}
+Consisting acoustic guitar,  flute, piano, mandolin, harmonica etc. : {('piano', 6): ('IPA: /piˈænoʊ/', 'NN')}
+Using only a compass and a straight edge I performed the perfect circumcision. : {('perfect', 11): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+Tighten is the perfect word, thank you : {('perfect', 3): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+That's perfect thanks! : {('perfect', 2): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+That is perfect! : {('perfect', 2): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+Perfect. : {('perfect', 0): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+Perfect! : {('perfect', 0): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+Perfect! : {('perfect', 0): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+Perfect : {('perfect', 0): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+If they do, maybe I can see it clearly with perfect vision. : {('perfect', 11): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+I've even got the perfect name... : {('perfect', 5): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+I am horny in perfect harmony : {('perfect', 4): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+For example, the sentence "Please, don't laugh." I consider it to be beautiful because even though it's 1st tier, it has 3 punctuation marks that would make a perfect 2nd tier. : {('perfect', 36): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+"What a perfect nomer," I said, advertently. : {('perfect', 3): ('IPA: /ˈpɜː.fɪkt/, /ˈpɜː.fɛkt/', 'JJ')}
+Our rule with objects is that the opposite is a toaster made of anti-matter. : {('objects', 3): ('IPA: /ˈɒbdʒɛkts/', 'NNS')}
+As recent as the last decade, bigots sometimes throw rocks and other objects at those they accuse of being gay. : {('objects', 13): ('IPA: /ˈɒbdʒɛkts/', 'NNS')}
+Another beautiful sentence for example would be a 1st tier where no word has a length of 3 and all pairs of consecutive words add up to a multiple of 3: "I am quite sure Kentucky objects." : {('objects', 38): ('IPA: /ˈɒbdʒɛkts/', 'NNS')}
+ Junk -- Unwanted/broken objects. : {('objects', 3): ('IPA: /əbˈdʒɛkts/', 'verb')}
+That is a misuse because ir- and -less mean the same, so that makes a word with a double negative in it. : {('misuse', 3): ('IPA: /mɪsˈjuːs/', 'NN')}
+Some misuse it to mean an item is of a higher quality, such as "Pete's Professional Potting Soil." : {('misuse', 1): ('IPA: /mɪsˈjuːz/', 'VBP')}
+Took me a minute :) : {('minute', 3): ('IPA: /ˈmɪnɪt/', 'NN')}
+This took me a minute to get. : {('minute', 4): ('IPA: /ˈmɪnɪt/', 'NN')}
+Some witty person is gonna swoop in any minute and take it the rest of the way any second. : {('minute', 9): ('IPA: /ˈmɪnɪt/', 'NN')}
+It can be as easy or challenging as you like, and you can spend a minute to a full hour per day on it. : {('minute', 16): ('IPA: /ˈmɪnɪt/', 'NN')}
+IT TOOK ME A WHOLE MINUTE TO GET THIS : {('minute', 5): ('IPA: /ˈmɪnɪt/', 'NN')}
+Where would a guy wearing a cap who has bronze skin most like to live? : {('live', 14): ('IPA: /lɪv/', 'VB')}
+Webinar  — live, online educational presentation during which participating viewers can submit questions and comments. : {('live', 2): ('IPA: /lɪv/', 'VB')}
+We're live on Kickstarter  and almost halfway there - check it out and back us if you're interested. : {('live', 2): ('IPA: /lɪv/', 'VB')}
+We pronounce the "oo" here in the UK; I used to live in New Zealand though. : {('live', 14): ('IPA: /lɪv/', 'VB')}
+There are several hice on the block where I live. : {('live', 9): ('IPA: /lɪv/', 'VBP')}
+So "live's" is incorrect. : {('live', 2): ('IPA: /laɪv/', 'NNP')}
+Question about the validity of both even the lives of humans and even the live's of humans. : {('live', 14): ('IPA: /laɪv/', 'NN')}
+My favorite example is live,  which spells evil backwards. : {('live', 4): ('IPA: /laɪv/', 'JJ')}
+I am super drunk and have to agree, but, honestly, I would live there. : {('live', 15): ('IPA: /lɪv/', 'VB')}
+At the moment I'm keeping freddit private until I'm ready for it to go live. : {('live', 16): ('IPA: /lɪv/', 'VB')}
+Sweet, I learned that  describes the alignment of three or more celestial bodies in the same gravitational system along a line. : {('learned', 3): ('IPA: /lɜːnd/', 'VBD')}
+Shakespeare has no chill, and I've learned so much about him AFTER I graduated. : {('learned', 8): ('IPA: /lɜːnd/', 'VBN')}
+On the bright side, I learned a little bit about prohibition. : {('learned', 6): ('IPA: /lɜːnd/', 'VBD')}
+Come back when you've learned a bit more than simple letter substitution. : {('learned', 5): ('IPA: /lɜːnd/', 'VBN')}
+Who lived in a box made of lead : {('lead', 7): ('IPA: /liːd/', 'noun')}
+It's confusing everyone's logic because they're solving the problem in two different ways which lead to conflicting answers. : {('lead', 17): ('IPA: /liːd/', 'verb')}
+Homophones, letter transversals, and similar but wrong words can lead to some precarious situations. : {('lead', 11): ('IPA: /lɛd/', 'verb')}
+For to better health it aims to lead. : {('lead', 7): ('IPA: /lɛd/', 'verb')}
+About the toxic traits of lead : {('lead', 5): ('IPA: /lɛd/', 'noun')}
+The SAT with essay should be called the "ESSAYT" : {('essay', 3): ('IPA: /ˈɛˌseɪ/', 'NN')}
+Or examples of everyone else's envisioning of this essay. : {('essay', 9): ('IPA: /ˈɛˌseɪ/', 'NN')}
+My esé wrote an essay on the S.A. : {('essay', 4): ('IPA: /ˈɛˌseɪ/', 'NN')}
+The food for thought I serve is a lot to digest. : {('digest', 10): ('IPA: /daɪˈdʒɛst/, /dəˈdʒɛst/', 'VB')}
+If you converse with it, that chance goes higher. : {('converse', 2): ('IPA: /kənˈvɜːs/', 'VBP')}
+If you converse with it even more, it'll eventually make a caption out of your profile photo. : {('converse', 2): ('IPA: /kənˈvɜːs/', 'VBP')}
+Contract : {('contract', 0): ('IPA: /ˈkɒntɹækt/', 'NN')}
+There It Is would be released in 1993, the same year that console ports of Mortal Kombat came out, and that Kano would be one of many characters from that video game. : {('console', 13): ('IPA: /ˈkɒn.səʊl/', 'NN')}
+Come in to the commune for common community. : {('commune', 4): ('IPA: /ˈkɒmjuːn/', 'NN')}
+If your teddy bear does not have any clothes, it is just a teddy bare. : {('clothes', 8): ('IPA: /kləʊ(ð)z/', 'NNS')}
+If Kim Kardashian's daughter had a line of baby clothes using the same syntax, it would be called "North by North West." : {('clothes', 10): ('IPA: /kləʊ(ð)z/', 'NNS')}
+I'm sure she'd have been arrested if she had done that since nobody is born wearing clothes. : {('clothes', 18): ('IPA: /kləʊ(ð)z/', 'NNS')}
+As an example, George Orwell wanted to learn more about the scoundrels and vagabonds, so he dressed up in shabby clothes and lived on the streets of London for a while. : {('clothes', 22): ('IPA: /kləʊ(ð)z/', 'NNS')}
+>Snazzy Hazzy's clothes were vile : {('clothes', 4): ('IPA: /kləʊ(ð)z/', 'NNS')}
+"God" didn't make a baby with clothes already on them. : {('clothes', 9): ('IPA: /kləʊ(ð)z/', 'NNS')}
+It's actually closer to the original, lollapalooza, than pancake palooza. : {('closer', 3): ('IPA: /ˈkloʊsɚ/', 'JJR')}
+I've just got back from a holiday, I'll have a closer look soon. : {('closer', 13): ('IPA: /ˈkloʊsɚ/', 'JJR')}
+I think hardship in general tends to bring people closer together : {('closer', 9): ('IPA: /ˈkloʊsɚ/', 'JJR')}
+You ain't worth shit ..never heard it as you said it.. so no they aren't really close : {('close', 18): ('IPA: /kləʊs/', 'adjective')}
+Underwhelmed is close. : {('close', 2): ('IPA: /kləʊs/', 'JJ')}
+Though Nate is a boys name, so maybe close but no cigar. : {('close', 9): ('IPA: /kləʊs/', 'JJ')}
+Tho I already know this for a long time, tho it would feel more natural" "oh he does not sweep that speck of dust I found" "oh he does not close the door that 20 people never closed everyday since forever and there was never the slightest issue ever" : {('close', 35): ('IPA: /kləʊz/', 'VB')}
+Their manager brought in Mel to close out the game and win the series. : {('close', 6): ('IPA: /kləʊz/', 'VB')}
+Sounds close to Google. : {('close', 1): ('IPA: /kləʊs/', 'JJ')}
+Not exactly the un- prefix, but close as I can come to thinking of. : {('close', 7): ('IPA: /kləʊs/', 'adjective')}
+He came close to getting arrested, but the sheriff decided to help him find his dogs instead, and asked him to never let them loose again. : {('close', 2): ('IPA: /kləʊz/', 'verb')}
+Close though. : {('close', 0): ('IPA: /kləʊs/', 'JJ')}
+Close but not good : {('close', 0): ('IPA: /kləʊs/', 'JJ')}
+Bears are omnivorous, but when it's hungry and close, it becomes ominous. : {('close', 10): ('IPA: /kləʊs/', 'JJ')}
+A hint: "Very close veins" is a mondegreen for "varicose veins." : {('close', 5): ('IPA: /kləʊs/', 'JJ')}
+A blizzard means you are driving by the 1/10 mile markers because there is no difference between the road and the snow drifts on the side of the interstate and you are trying to get home before they close down the interstate. : {('close', 38): ('IPA: /kləʊz/', 'verb')}
+(Tending to "eat" one's hand when trying to close the sunroof. : {('close', 12): ('IPA: /kləʊz/', 'VB')}
+ It was a close game with the Cards up by one run in the ninth. : {('close', 3): ('IPA: /kləʊs/', 'JJ')}
+By all means hastily partake of a buffet that serving accumulated constitutional bio matter until you experience a constructed airway and then expire beyond resuscitation. : {('buffet', 7): ('IPA: /ˈbʊfeɪ/, /ˈbʌfeɪ/', 'noun')}
+His sailor son walked to the ship's bow, : {('bow', 8): ('IPA: /baʊ/', 'noun')}
+A man went hunting with his bow, : {('bow', 6): ('IPA: /bəʊ/', 'noun')}
+Excess axes. : {('axes', 1): ('IPA: /ˈæksəz/, /ˈæksɪz/', 'noun')}
+Ex axis axes ask ex axis exes : {('axes', 2): ('IPA: /ˈæksiːz/', 'noun')}
+Hearty Fish Ally : {('ally', 2): ('IPA: /ˈæl.aɪ/ (noun, also used for the verb)', 'noun')}
+Saying the word "gripe" sounds like saying "grape" in an Australian accent : {('accent', 15): ('IPA: /ˈak.sənt/', 'NN')}
+Not in my accent they're aren't. : {('accent', 3): ('IPA: /ˈak.sənt/', 'NN')}
+Maybe this depends on accent, but where I'm from there's a two-syllable difference between Hallelujah and Hell Yeah. : {('accent', 4): ('IPA: /ˈak.sənt/', 'NN')}
+It's a weird accent. : {('accent', 4): ('IPA: /ˈak.sənt/', 'NN')}
+I love watching media set in New Zealand, the Kiwi accent is amazing. : {('accent', 11): ('IPA: /ˈak.sənt/', 'NN')}
+I don't get it, is it something that I need to say aloud in a certain accent? : {('accent', 18): ('IPA: /ˈak.sənt/', 'NN')}
+His heavy accent helped a lot. : {('accent', 2): ('IPA: /ˈak.sənt/', 'NN')}
+Doesn't really sound similar in my accent. : {('accent', 7): ('IPA: /ˈak.sənt/', 'NN')}
+But no accent you just have to pronounce it as it's written : {('accent', 2): ('IPA: /ˈak.sənt/', 'NN')}
+Accent probably plays a part, or perhaps the vocal competency of the speaker? : {('accent', 0): ('IPA: /ˈak.sənt/', 'NN')}
+We should also strive to never abuse others. : {('abuse', 6): ('IPA: /əˈbjuːz/', 'VB')}
+Wanting to make only called-for remarks, I started talking about the hors d'oeuvres, trying to abuse her of the notion that I was sipid, and perhaps even bunk a few myths about myself. : {('abuse', 17): ('IPA: /əˈbjuːz/', 'VBG')}
+But your abuse of the letter T has a little legitimate sea?... : {('abuse', 2): ('IPA: /əˈbjuːs/', 'NN')}
+Authors Alliance Against Alliteration, and Acronym Abuse meeting. : {('abuse', 7): ('IPA: /əˈbjuːs/', 'NN')}
+ABUSE -- Always Beating Up Someone Else : {('abuse', 0): ('IPA: /əˈbjuːs/', 'NN')}
+"He touched me..." -- Played around abuse survivors. : {('abuse', 9): ('IPA: /əˈbjuːs/', 'NN')}
