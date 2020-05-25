@@ -2,20 +2,17 @@ import nltk, re, stanza, time, praw, pickle
 from bs4 import BeautifulSoup
 from urllib import request
 from anytree import Node, RenderTree
-from wiktionaryparser import WiktionaryParser #version must be exactly 0.0.97 to do monkey patching
+from wiktionaryparser import WiktionaryParser 
+#version of WiktionaryParser must be exactly 0.0.97 to do monkey patching
+#as specified in requirements.txt
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk import pos_tag, word_tokenize, sent_tokenize
-from nltk.corpus import wordnet_ic
-from pprint import pprint
 from collections import defaultdict
 
 start = time.time()
-brown_ic = wordnet_ic.ic('ic-brown.dat')
 cmucorpus = nltk.corpus.cmudict 
 cmudict_dict = cmucorpus.dict()
-# cmuentries = cmucorpus.entries()
-# words_in_cmu = set(cmudict_dict)
 stopword = stopwords.words('english')
 wnl = nltk.WordNetLemmatizer()
 wikparser = WiktionaryParser()
@@ -29,8 +26,7 @@ stanza_nlp = stanza.Pipeline('en', tokenize_no_ssplit=True)
 
 def tag_sent(s):
     """
-        POS tagging to a sentence string.
-        Since we are using stanza, maybe this should be replaced by that.
+        POS tagging to a sentence string using NLTK.
     """
     txt = word_tokenize(s)
     return nltk.pos_tag(txt)
@@ -43,14 +39,19 @@ def get_pars(sred, verbose = True):
     i = 0
     print("Working on reddit post #%d" %(i + 1))
     for sub in sred:
+        to_add = []
         if verbose and not ((i + 1) % 50): 
             print("Working on reddit post #%d" %(i + 1))
-        paragraphs = paragraphs + [sub.title, sub.selftext]
+        #paragraphs = paragraphs + [sub.title, sub.selftext]
+        to_add = to_add + [sub.title, sub.selftext]
         sub.comments.replace_more(limit = None)
         comms = []
         for comment in sub.comments.list():
             comms.append(comment.body)
-        paragraphs += comms
+        to_add += comms
+        sub_url = sub.url
+        add_with_url = [(par, sub_url) for par in to_add]
+        paragraphs += add_with_url
         i += 1
     return paragraphs
         
@@ -121,6 +122,8 @@ def heteronyms_from_nltk():
     """
     words = [entry.lower() for entry in new_cmuentries]
     heteronym_candidates = [word for word in words if heteronym_check_from_nltk(word, hetero7)]
+    # if we do not remove stopwords, not only stopwords play a weak role in a sentence in terms of context, 
+    # the result will also contain undesired results such as stressed/unstressed pronunciations of articles 'a' and 'the'.
     maybe_heteros = set(heteronym_candidates).difference(set(stopword))
     return maybe_heteros
 
@@ -154,6 +157,9 @@ def makeDictFromWikiWord(word):
     return dict(myDict)
 
 def myFreq(word_list):
+    """
+        make information which can be used in sorting the results.
+    """
     uniques = list(set(word_list))
     freq_list = []
     for word in uniques:
@@ -161,6 +167,10 @@ def myFreq(word_list):
     return freq_list        
 
 def make_dependency_tree(stanza_tagged_sent):
+    """
+        After dependency parsing, this function generates a dependency tree
+        using the AnyTree module.
+    """
     words = stanza_tagged_sent.words
     remaining_indices = [i for i in range(len(words))]
     avoid_duplicate = 'unassinged'
@@ -176,6 +186,13 @@ def make_dependency_tree(stanza_tagged_sent):
     return node_list
 
 def get_helper_words_from_tree(dep_tree, node):
+    """
+        from the dependency tree, given a node, this function searches in the following order
+        1. descendants, in order of depth
+        2. if unsuccessful in step 1, parent
+        3. if unsuccessful in step 2, siblings and their descendants, in order of depth
+        for words which are strongly related to the word corresponding to the input node 
+    """
     res_idx = []
     descendants = [child for child in node.children]
     while len(res_idx) == 0 and len(descendants) > 0:
@@ -204,8 +221,11 @@ def get_helper_words_from_tree(dep_tree, node):
     
 
 def estimate_str_similarity(def_str, helper_word):
-    #path_similarity? something related to that
-    # assuming helper_word is always noun verb or adj
+    """
+        finds the most path-related pair of synsets, 
+        one from the word in the input string, and the other from the input word, 
+        and returns the similarity.
+    """
     pos_tagged_def_str = tag_sent(def_str)
     target_pos = 'n' if helper_word.xpos[0] == 'N' else ('v' if helper_word.xpos[0] == 'V' else 'a')
     helper_word_bag = [synset for synset in wn.synsets(wnl.lemmatize(helper_word.text, target_pos))\
@@ -228,17 +248,24 @@ def estimate_str_similarity(def_str, helper_word):
 
 def estimate_list_similarity(def_pron_list, helper_word):
     #helper_word is stanza-word
-    #def_pron_list : [(definition string1, pron1), (definition string2, pron2), ...]
+    """
+        does estimate_str_similarity for each string in the input list with the input word
+        and returns the "scores" from each estimate_str_similarity.
+    """
     def_list = [def_str for (def_str, pron, pos) in def_pron_list]
     normalize_sent_lists(def_list)
     scores = [0.0] * len(def_list)
     for i in range(len(def_list)):
         #estimate_str_similarity
         scores[i] = estimate_str_similarity(def_list[i], helper_word)
-        #point MLE?
     return scores
 
 def infer_pronunciation(def_pron_list, helper_word):
+    """
+        from the scores of estimate_list_similarity, 
+        finds the best matching definition string with the word
+        and from that definition string, infer the pronunciation of the word
+    """
     pron_list = [pron for (def_str, pron, pos) in def_pron_list]
     score_list = estimate_list_similarity(def_pron_list, helper_word)
     idx = 0
@@ -251,6 +278,10 @@ def infer_pronunciation(def_pron_list, helper_word):
 
 def reverse_dict(heterodict_entry, target_pos):
     #target_pos here should be full-name pos
+    """
+        a method which changes the order of heteronym dictionary entry hierarchy, 
+        similar to making a reverse dictionary from a dictionary.
+    """
     def_pron_list = []
     for IPA in heterodict_entry:
         defs = heterodict_entry[IPA]
@@ -263,6 +294,9 @@ def reverse_dict(heterodict_entry, target_pos):
 
 
 def determinable_by_simple_pos(word, xpos):
+    """
+        check : is uniquely annotating the pronunciation by POS information possible?
+    """
     if xpos[0] == 'N':
         simple_pos = 'noun'
     elif xpos[0] == 'V':
@@ -287,6 +321,10 @@ def determinable_by_simple_pos(word, xpos):
         return (False, None)
 
 def determinable_by_tense_pos(word, xpos):
+    """
+        check : is uniquely annotating the pronunciation by POS information possible...
+                ...if we add inflection information?
+    """
     if xpos[0] != 'V':
         return (False, None)
     #else:
@@ -362,14 +400,22 @@ WiktionaryParser.parse_pronunciations = debugged_parse_pronunciation
 
 new_cmuentries = []
 hetero7 = heteroFromNewCMUDict(new_cmuentries)
-hetero_semi_candidates = heteronyms_from_nltk()
-hetero_candidates = hetero_semi_candidates#refine_hetero_by_vocab_module(hetero_semi_candidates)
+# using cmudict and Wordnet, remove words those are definitely not heteronyms
+hetero_candidates = heteronyms_from_nltk()
 
-print("preamble time = %.6f seconds" %(time.time() - start))
+# print("preamble execution time = %.6f seconds" %(time.time() - start))
 
+"""
+###### The code block below is the part where reddit posts from wordplay subreddit is cralwed.
+###### It is commented because it takes a long time to crawl reddit posts, 
+###### and instead of crawling everytime, we make a pickle of crawled sentence once and for all,
+###### so at the next time we need the sentences we can just load that pickle.
+###### It takes about 6~8 minutes on this crawling part on my environment, 
+###### but one can uncomment this part if needed. 
 
-###    Initializer of Python Reddit API Wrapper    ###
-### Below is a routine of authenticating via OAuth2 ##
+###########    Initializer of Python Reddit API Wrapper    ###########
+### Below is a routine of authenticating via OAuth2, do not change ###
+
 reddit = praw.Reddit(client_id = "ssLUMowJL-2Ulw", \
                      client_secret = None, \
                      redirect_uri='http://localhost:8080',
@@ -377,7 +423,7 @@ reddit = praw.Reddit(client_id = "ssLUMowJL-2Ulw", \
 
 subreddit = reddit.subreddit('wordplay')
 
-num_of_hot_posts = 0
+num_of_hot_posts = 1
 num_of_top_posts = 1000
 
 ### Get posts in the subreddit, sorted by hot and top ###
@@ -389,28 +435,28 @@ pars2 = get_pars(top_sred)
 
 pars = pars1 + pars2
 sents = []
-for par in pars:
+for par, url in pars:
     splits = re.split("[\r\n]+", par)
     for splinter in splits:
         sent_list = sent_tokenize(splinter)
         normalize_sent_lists(sent_list)
-        sents += sent_list
+        sent_list_with_url = [(sent, url) for sent in sent_list]
+        sents += sent_list_with_url
 
 with open("./sents_from_reddit.txt", 'wb') as fout:
     pickle.dump(sents, fout)
 fout.close()
 
-print("crawled %d sentences from %d submissions in %.6f seconds" \
-        %( len(sents), (num_of_top_posts if (num_of_top_posts is not None) else 1000) \
-        + (num_of_hot_posts if (num_of_hot_posts is not None) else 1000),\
-        time.time() - start))
+"""
 
+# loading crawled sentences from pickle
 with open("./sents_from_reddit.txt", 'rb') as fin:
     sents = pickle.load(fin)
 fin.close()
 
+# collect all words with a possibility of being a heteronym according to NLTK
 pool = []
-for sent in sents:
+for sent, url in sents:
     sent = sent.strip()
     words = word_tokenize(sent)
     weak_heteros = []
@@ -420,8 +466,16 @@ for sent in sents:
             cnt += 1
             weak_heteros.append(word.lower())
     if cnt :
-        #do something
         pool = pool + weak_heteros
+
+"""
+###### The code block below is the part where we query Wiktionary to check if a word is really a heteronym.
+###### It is commented because it takes a long time due to crawling and parsing many times. 
+###### So instead of doing this everytime, we make a pickle of dictionary conatining fetched results,
+###### so at the next time we need the sentences we can just load that pickle.
+###### It takes about 15~18 minutes on ~900 queries on my environment, 
+###### but this part heavily depends on the input courpus, so if the inpurt corpus is changed
+###### then this part must be uncommented and executed. 
 
 start2 = time.time()
 new_pool = []
@@ -431,32 +485,35 @@ for word in set(pool):
     if heteronym_check_from_wiktionary(tmp_dict):
         hetero_dict[word] = tmp_dict
         new_pool.append(word)
-print("wikparser : %d targets, %.6f seconds" %(len(set(pool)), time.time() - start2))
 
 with open("./heteronym_pickle.txt", 'wb') as fout:
     pickle.dump(hetero_dict, fout)
 fout.close()
+"""
 
 heterodict = {}
 with open("./heteronym_pickle.txt", 'rb') as fin:
     heterodict = pickle.load(fin)
 fin.close()
 
+# The annotating part
+start3 = time.time()
 sent_count = []
-for sent in sents:
-    print(sent)
+for sent, url in sents:
     heteros_in_sent = []
     to_analyze = []
     words_list = word_tokenize(sent)
+    # collect all indices of heteronyms in sentence
     for i in range(len(words_list)):
         word = words_list[i].lower()
         if word in heterodict:
             heteros_in_sent.append(word)
             to_analyze.append(i)
     if len(heteros_in_sent):
+        # start annotation only if there is a heteronym in the sentence
         sent_to_doc = stanza_nlp(sent)
         tagged_sent = sent_to_doc.sentences[0]
-
+        # map to store annotation results
         annotation_dict = {}
         for word_idx in to_analyze: 
             word_info_from_stanza = tagged_sent.words[word_idx]
@@ -464,26 +521,32 @@ for sent in sents:
             if not word_to_lookup in heterodict:
                 raise ValueError
             word_pos = word_info_from_stanza.xpos
+            full_name_pos = 'noun' if word_pos[0] == 'N' else ('verb' if word_pos[0] == 'V'\
+                                         else ('adjective' if word_pos[0] == 'J' else ('adverb' if word_pos[0] == 'R' else '')))
+            
+            # check if knowing POS information, and/or how the word is inflected can uniquely determine the pronunciation
             tag_done, IPA_tag = determinable_by_simple_pos(word_to_lookup, word_pos)
             if tag_done :
-                annotation_dict[(word_to_lookup, word_idx)] = (IPA_tag, word_pos)
+                annotation_dict[(word_to_lookup, word_idx)] = (IPA_tag, full_name_pos)
                 continue
             tag_done, IPA_tag = determinable_by_tense_pos(word_to_lookup, word_pos)
             if tag_done:
-                annotation_dict[(word_to_lookup, word_idx)] = (IPA_tag, word_pos)
+                annotation_dict[(word_to_lookup, word_idx)] = (IPA_tag, full_name_pos)
                 continue
+
+            # no early detection, dependecy parsing and analysis should be done.
             sent_dep_tree = make_dependency_tree(tagged_sent)
             helpers_indices = get_helper_words_from_tree(sent_dep_tree,  sent_dep_tree[int(word_info_from_stanza.id)] )
-            full_name_pos = 'noun' if word_pos[0] == 'N' else ('verb' if word_pos[0] == 'V'\
-                                         else ('adjective' if word_pos[0] == 'J' else ('adverb' if word_pos[0] == 'R' else '')))
             def_pron_list = reverse_dict(heterodict[word_to_lookup], full_name_pos)
             if len(def_pron_list) == 0:
                 #this case, pos_tagger tagged a POS not listed in wiktionary. We should retry without using POS information.
                 def_pron_list = reverse_dict(heterodict[word_to_lookup], '')
-            inference_result = []
+
+            inference_result = [] # estimation scores will be stored in this list.
             for helpers_index in helpers_indices:
                 IPA_tag, likely, infered_pos = infer_pronunciation(def_pron_list, tagged_sent.words[int(helpers_index) - 1])
                 inference_result.append((IPA_tag, likely, infered_pos))
+
             if len(inference_result) == 0:
                 # In this case, no useful related words to the heteronym was found in the sentence...
                 # which in other words, does not matter much or cannot determine decisively how we read this heteronym;
@@ -491,6 +554,8 @@ for sent in sents:
                 IPA_tag = list(heterodict[word_to_lookup])[0]
                 annotation_dict[(word_to_lookup, word_idx)] = ( IPA_tag , list(heterodict[word_to_lookup][IPA_tag])[0] )
                 continue
+
+            # annotate the pronunciation with the best estimation score 
             final_IPA_tag = inference_result[0][0]
             max_likely = inference_result[0][1]
             final_infered_pos = inference_result[0][2]
@@ -500,12 +565,16 @@ for sent in sents:
                     final_IPA_tag = result[0]
                     final_infered_pos = result[2]
             annotation_dict[(word_to_lookup, word_idx)] = (final_IPA_tag, final_infered_pos)
-        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), len(set(annotation_dict.values())), sent, annotation_dict]) 
+        # appending information so that the sorted order follows the rules specified in the HW description document
+        sent_count.append([len(heteros_in_sent), myFreq(heteros_in_sent), len(set(annotation_dict.values())), sent, annotation_dict, url]) 
     
-fout = open("./reddit.txt", 'w', encoding = "utf-8")
-new_sent = sorted(sent_count, reverse = True)
-for (total_freq, cnt, num_of_distinct_pron, sent, annotations) in new_sent:
-    fout.write(sent)
-    fout.write(' : ' + str(annotations))
+fout = open("./CS372_HW3_output_[20160650].csv", 'w', encoding = "utf-8")
+
+new_sent = sorted(sent_count, reverse = True) #sort the results
+for (total_freq, cnt, num_of_distinct_pron, sent, annotations, url) in new_sent[:30]:
+    fout.write('"' + sent + '"')
+    fout.write(' , ' + str(annotations)[1:-1])
+    fout.write(' , ' + url) # precise citation indicating the reddit submission URL.
     fout.write('\n')
 fout.close()
+#print("annotation and writing file : %.6f seconds" %(time.time() - start3))
